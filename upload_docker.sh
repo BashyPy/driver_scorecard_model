@@ -5,13 +5,13 @@
 
 # Step 1:
 # Create dockerpath
-dockerpath=herbehordeun/scorecard_system_fastapi
+dockerpath=herbehordeun/driver_scorecard_model
 
 # Step 2:
 # Authenticate & tag
 docker login --username=herbehordeun
-docker image tag scorecard_system_fastapi $dockerpath
+docker image tag driver_scorecard_model $dockerpath
 echo "Docker ID and Image: $dockerpath"
 
 # Step 3:
-docker push $dockerpath:latest
+docker push $dockerpath:main
