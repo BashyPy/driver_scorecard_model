@@ -25,7 +25,6 @@ from pydantic_models import Token, TokenData, User, UserInDB
 from users import users_db
 from error_logger import logger
 
-
 # Suppress scientific notation
 pd.options.display.float_format = '{:.2f}'.format
 pd.options.plotting.backend = "plotly"
@@ -35,7 +34,7 @@ warnings.filterwarnings("ignore")
 
 paths = ['csv files', 'HTML Charts', 'HTML Charts/Year',
          'HTML Charts/Year and Month', 'HTML Charts/Year and Month and ID',
-         'HTML Charts/Year and Quarter', 'HTML Charts/Year and Quarter and ID']
+         'HTML Charts/Year and Quarter', 'HTML Charts/Year and Quarter and ID', ]
 
 
 for path in paths:
@@ -130,41 +129,41 @@ try:
         elif (x > 8) and (x <= 12):
             return 'Morning'
         elif (x > 12) and (x <= 16):
-            return 'Noon'
+            return'Noon'
         elif (x > 16) and (x <= 20):
             return 'Eve'
         elif (x > 20) and (x <= 24):
-            return 'Night'
+            return'Night'
         elif (x <= 4):
-            return 'Late Night'
+            return'Late Night'
 
     data['eventpartofday'] = data['eventhour'].apply(
-        part_of_day)
+       part_of_day)
 
     def test():
         global updated_data
 
         updated_data = data[['DriverID', 'Company ID', 'Company Name', 'Email', 'positionid',
                             'timestamp', 'event', 'eventdate', 'eventtime', 'eventday',
-                             'eventyear', 'eventmonth', 'eventweek', 'eventdayofweek', 'eventdayofmonth',
-                             'eventdayofyear', 'eventquarter', 'eventhour', 'eventpartofday', 'latitude',
-                             'longitude', 'altitude', 'speed', 'course', 'accuracy', ]]
+                                'eventyear', 'eventmonth', 'eventweek', 'eventdayofweek', 'eventdayofmonth',
+                                'eventdayofyear', 'eventquarter', 'eventhour', 'eventpartofday', 'latitude',
+                                'longitude', 'altitude', 'speed', 'course', 'accuracy', ]]
 
     test()
 
     updated_data.to_csv('./csv files/data.csv', index=False,
-                        header=True, encoding='utf-8')
+                       header=True, encoding='utf-8')
     data.to_csv('./csv files/main_data.csv', index=False,
-                header=True, encoding='utf-8')
+               header=True, encoding='utf-8')
 
-    # result = updated_data.to_json(orient="records")
-    # parsed = json.loads(result)
-    # json.dumps(parsed, indent=4)
+    #result = updated_data.to_json(orient="records")
+    #parsed = json.loads(result)
+    #json.dumps(parsed, indent=4)
 except:
     print("Error: unable to convert the data")
     logger.warning("Error: unable to convert the data")
     logger.error('Exception occurred', exc_info=True)
-
+  
 
 # Create declarative base meta instance
 Base = declarative_base()
@@ -181,7 +180,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
-
 
 def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
@@ -277,6 +275,7 @@ async def read_users_me(current_user: User = Depends(get_current_active_user)):
 
 @app.get('/fetchData')
 async def get_all_data():
+    
     result = updated_data.to_json(orient="records")
     parsed = json.loads(result)
     json.dumps(parsed, indent=4)
@@ -334,18 +333,18 @@ async def get_driver_score_per_year(year: int):
     else:
         day = data[data['eventyear'] == year]
         # print('A preview at the selected month', day.head())
-        # eventCount = len(day.event)
+        #eventCount = len(day.event)
         # print(
-        # f'The number of events made in the selected month is: {eventCount} events'
+            # f'The number of events made in the selected month is: {eventCount} events'
         # )
-        # driverCount = day.DriverID.nunique()
+        #driverCount = day.DriverID.nunique()
         # print(
-        # f"The number of drivers in this date range is: {driverCount}")
+            # f"The number of drivers in this date range is: {driverCount}")
         eventsPerDriver = day.groupby('DriverID', as_index=True).agg(
             {"event": "count"}).add_prefix('Number of ')
-        # averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
+        #averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
         # print(
-        # f'The average number of events made by the drivers is: {averageNoEvents}')
+            # f'The average number of events made by the drivers is: {averageNoEvents}')
 
         fig = px.bar(eventsPerDriver.reset_index(),  x='Number of event',
                      y='DriverID', color='Number of event', barmode='group', orientation='h')
@@ -359,7 +358,8 @@ async def get_driver_score_per_year(year: int):
         # fig.show()
         fig.write_html('./HTML Charts/Year/Number of trips per Driver.html')
 
-        fig = px.histogram(eventsPerDriver.reset_index(), x='Number of event')
+        fig = px.histogram(eventsPerDriver.reset_index(),
+                           x='Number of event')
         fig.update_layout(
             xaxis_title="Number of Events",
             yaxis_title="Number of drivers in Range",
@@ -369,14 +369,14 @@ async def get_driver_score_per_year(year: int):
         # fig.show()
         fig.write_html('./HTML Charts/Year/Histogram of Events.html')
 
-        # maxEventsPerDriver = eventsPerDriver['Number of event'].max()
-        # DriverID = eventsPerDriver['Number of event'].idxmax()
+        #maxEventsPerDriver = eventsPerDriver['Number of event'].max()
+        #DriverID = eventsPerDriver['Number of event'].idxmax()
         # print(
-        # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
-        # minEventsPerdriver = eventsPerDriver['Number of event'].min()
-        # DriverID = eventsPerDriver['Number of event'].idxmin()
+            # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
+        #minEventsPerdriver = eventsPerDriver['Number of event'].min()
+        #DriverID = eventsPerDriver['Number of event'].idxmin()
         # print(
-        # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
+            # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
         # Event Type
         dfReasonHist = day.groupby(['event'])[['event']].agg('count').add_prefix(
             'Number of ').reset_index().sort_values('Number of event', ascending=True)
@@ -394,11 +394,11 @@ async def get_driver_score_per_year(year: int):
 
         # Handling Behavioral and Non-behavioral Events
         # non-behavioral events
-        # non_behavioral_events = [event for event in day.event if event not in [
+        #non_behavioral_events = [event for event in day.event if event not in [
         #    'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
-        # newCount = len(day[day['event'].isin(non_behavioral_events)])
+        #newCount = len(day[day['event'].isin(non_behavioral_events)])
         # print("Number of events before removing non-behavioral events is: {}.\nAfter removing non-behavioral events, we have: {} events.\nThis led to a reduction in the data size by: {:0.2f}%, leaving: {:0.2f}% of the entire data size.\nCurrent number of events is: {}".format(
-        # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
+            # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
         # Specifying behavioral events
         behavioral_events = [event for event in day.event if event in [
             'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
@@ -407,14 +407,14 @@ async def get_driver_score_per_year(year: int):
         def prepData(day, minRecordsPerSubscriber=0):
             day.reset_index(inplace=True)
             # print(
-            # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
+                # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
             # Remove NAs
-            # df = day.dropna()
+            #df = day.dropna()
             # print(f"Removing NAs, we are left with: {len(df)} trips")
             # Filter out unwanted events
             df4 = day[day['event'].isin(behavioral_events)]
             # print(
-            # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
+                # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
             # Filter out users with too few samples
             eventCountPerdriver = df4.groupby(
                 'DriverID')['DriverID'].agg('count')
@@ -423,9 +423,9 @@ async def get_driver_score_per_year(year: int):
             driversWithManyRecords.keys()
             df5 = df4[df4['DriverID'].isin(driversWithManyRecords.keys())]
             # print(
-            # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
+                # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
             # print("*** Done. ***")
-            return (df5)
+            return(df5)
 
         df6 = prepData(day)
         relevantEventsPerSubscriber = df6.groupby('DriverID').agg(
@@ -586,8 +586,8 @@ async def get_driver_score_per_year(year: int):
             # Pivot events into columns
             # Pivot the table by setting the drivers' name as the index column, while the respective events takes on a column each.
             # Finally, fill missing observations with zeros(0s)
-            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=['event'],
-                                                     values='Number of event').add_prefix('F_').fillna(0).reset_index()
+            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=[
+                                                     'event'], values='Number of event').add_prefix('F_').fillna(0).reset_index()
             # Merge the created pivot table with the earlier created dataframe for distance traveled per driver.
             dfEventMatrix = dfEventMatrix.merge(
                 distancePerdriver, how='inner', on='DriverID')
@@ -681,7 +681,7 @@ async def get_driver_score_per_year(year: int):
                 return x
             valueGreaterThanZero = np.where(x <= 0, 0, x)
             positives = x[valueGreaterThanZero == 1]
-            if (len(positives) > 0):
+            if(len(positives) > 0):
                 xt[valueGreaterThanZero == 1], _ = st.boxcox(positives+1)
             if min_max_transform:
                 xt = (xt - np.min(xt)) / (np.max(xt)-np.min(xt))
@@ -717,11 +717,11 @@ async def get_driver_score_per_year(year: int):
             inliers = np.where(xt <= xMean + stdFactor*xStd)[0]
             if len(outliers) > 0:
                 # print("found outlier with factor: " +
-                # str(stdFactor)+" : "+str(outliers))
+                      # str(stdFactor)+" : "+str(outliers))
                 xinline = x[inliers]
                 maxInRange = np.max(xinline)
                 # print("replacing outliers {} with max={}".format(
-                # outliers, maxInRange))
+                    # outliers, maxInRange))
                 vals = x.copy()
                 vals[outliers] = maxInRange
                 x = pd.Series(vals)
@@ -740,10 +740,8 @@ async def get_driver_score_per_year(year: int):
         # print("A preview of the cleaned data after handling outliers")
         # print(cleanFeatures.head())
 
-        fig = px.scatter_matrix(cleanFeatures.reset_index(),
-                                dimensions=['Hard Acceleration',
-                                            'Hard Braking', 'Hard Cornering',
-                                            'Overspeed'],
+        fig = px.scatter_matrix(cleanFeatures.reset_index(), dimensions=['Hard Acceleration',
+                                                                         'Hard Braking', 'Hard Cornering', 'Overspeed'],
                                 color='DriverID', width=800, height=800)
         # fig.show()
         fig.write_html(
@@ -771,8 +769,8 @@ async def get_driver_score_per_year(year: int):
         maxPerFeature = cleanFeatures.max()
         # print("Min and Max values per column before normalization")
         # for col in range(0, len(cleanFeatures.columns)):
-        # print(
-        # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
+            # print(
+                # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
         normalizedFeatures = (cleanFeatures-minPerFeature) / \
             (maxPerFeature-minPerFeature)
         normalizedFeatures = normalizedFeatures.replace(
@@ -793,27 +791,27 @@ async def get_driver_score_per_year(year: int):
 
         # print("Mean and STD before standardization")
         # for col in range(0, len(transFeatures.columns)):
-        # print(
-        # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
+            # print(
+                # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
 
         # Anomaly Detection:
         # LOF - Local Outlier Filter
-        # X = transFeaturesScaled.values
-        # X = np.nan_to_num(X)
-        # clf = LocalOutlierFactor(n_neighbors=5)
-        # isOutlier = clf.fit_predict(X)
-        # plt.title("Local Outlier Factor (LOF)", fontsize=20)
-        # a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
+        #X = transFeaturesScaled.values
+        #X = np.nan_to_num(X)
+        #clf = LocalOutlierFactor(n_neighbors=5)
+        #isOutlier = clf.fit_predict(X)
+        #plt.title("Local Outlier Factor (LOF)", fontsize=20)
+        #a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
         #                edgecolor='k', s=40)
-        # b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
+        #b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
         #                edgecolor='k', s=40)
-        # fig = plt.gcf()
-        # fig.set_size_inches(15, 10)
-        # plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
-        # plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
-        # plt.xlim((-0.01, 1.01))
-        # plt.ylim((-0.01, 1.01))
-        # plt.legend([a, b],
+        #fig = plt.gcf()
+        #fig.set_size_inches(15, 10)
+        #plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
+        #plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
+        #plt.xlim((-0.01, 1.01))
+        #plt.ylim((-0.01, 1.01))
+        #plt.legend([a, b],
         #           ["normal observations",
         #            "abnormal observations"],
         #           loc="upper right", prop={'size': 15}, frameon=True)
@@ -823,18 +821,18 @@ async def get_driver_score_per_year(year: int):
         # Multivariate analysis
         # Dimensionality reduction
         # PCA
-        # pca = PCA(n_components=4)
-        # principalComponents = pca.fit_transform(normalizedFeatures)
-        # column_names = ['principal component {}'.format(
+        #pca = PCA(n_components=4)
+        #principalComponents = pca.fit_transform(normalizedFeatures)
+        #column_names = ['principal component {}'.format(
         #    i) for i in range(normalizedFeatures.shape[1])]
         # plt.bar(x=column_names, height=pca.explained_variance_ratio_)
         # plt.title("Percentage of explained variance")
         # fig.show()
         # print("Principal components explained variance ratio: {}.".format(
-        # pca.explained_variance_ratio_))
-        # principalDf = pd.DataFrame(
+            # pca.explained_variance_ratio_))
+        #principalDf = pd.DataFrame(
         #    data=principalComponents, columns=column_names)
-        # df = normalizedFeatures
+        #df = normalizedFeatures
         # fig = plt.gcf()
         # fig.set_size_inches(15, 10)
         # Show correlation matrix of the original features and the first principal component
@@ -860,7 +858,7 @@ async def get_driver_score_per_year(year: int):
             xPositive = xPositive.fillna(0)
             # xPositive = xPositive.replace
             probs = np.zeros(len(series))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 params = st.expon.fit(xPositive)
                 arg = params[:-2]
                 loc = params[-2]
@@ -872,7 +870,7 @@ async def get_driver_score_per_year(year: int):
             # print("Calculating scores for feature: " + x.name)
             xPositive = x[x > 0]
             probs = np.zeros(len(x))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 arg = fittedParams[x.name]['arg']
                 loc = fittedParams[x.name]['loc']
                 scale = fittedParams[x.name]['scale']
@@ -899,10 +897,10 @@ async def get_driver_score_per_year(year: int):
         # Cumulative distribution/density function
         perFeatureScores = normalizedFeatures.apply(calculate_score_for_series, args=(
             fittedParams, False), axis=0).add_suffix("_CDF")
-        # perFeatureScores.head()
-        # DIST = st.expon
+        #perFeatureScores.head()
+        #DIST = st.expon
 
-        # def create_pdf(dist, params, size=10000):
+        #def create_pdf(dist, params, size=10000):
         #    # Separate parts of parameters
         #    arg = params[:-2]
         #    loc = params[-2]
@@ -967,8 +965,8 @@ async def get_driver_score_per_year(year: int):
         driverScores = driverScores.reset_index()
         driverScores = driverScores.rename(columns={'DriverID': 'Driver ID', 'Hard Acceleration_CDF': 'Hard Acceleration',
                                                     'Hard Braking_CDF': 'Hard Braking',
-                                                    'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed',
-                                                    'score': 'Score', 'rank': 'Position'}, inplace=False)
+                                           'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed',
+                                           'score': 'Score', 'rank': 'Position'}, inplace=False)
         # print(driverScores.head())
         driverScores['Score'] = driverScores['Score']*100
         driverScores['Position'] = driverScores['Position']
@@ -991,13 +989,13 @@ async def get_driver_score_per_year(year: int):
             condition)
 
         driverScores1 = driverScores[['Driver ID',
-                                      'Score', 'Position', 'Safety Class']]
+                                     'Score', 'Position', 'Safety Class']]
         driverScores1 = driverScores1.sort_values(
             by='Score', ascending=False)
 
         result = driverScores1.to_json(orient="records")
-        # parsed = json.loads(result)
-        # json.dumps(parsed, indent=4)
+        #parsed = json.loads(result)
+        #json.dumps(parsed, indent=4)
         # print("Score obtained per driver")
         # print(driverScores1)
 
@@ -1028,21 +1026,20 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
     if day.shape[0] < 600:
         return {"message": "Not Enough Records, Please Select Another Month", "status": 401}
     else:
-        day = data[(data['eventyear'] == year) &
-                   (data['DriverID'] == driverID)]
+        day = data[(data['eventyear'] == year) & (data['DriverID'] == driverID)]
         # print('A preview at the selected month', day.head())
-        # eventCount = len(day.event)
+        #eventCount = len(day.event)
         # print(
-        # f'The number of events made in the selected month is: {eventCount} events'
+            # f'The number of events made in the selected month is: {eventCount} events'
         # )
-        # driverCount = day.DriverID.nunique()
+        #driverCount = day.DriverID.nunique()
         # print(
-        # f"The number of drivers in this date range is: {driverCount}")
+            # f"The number of drivers in this date range is: {driverCount}")
         eventsPerDriver = day.groupby('DriverID', as_index=True).agg(
             {"event": "count"}).add_prefix('Number of ')
-        # averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
+        #averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
         # print(
-        # f'The average number of events made by the drivers is: {averageNoEvents}')
+            # f'The average number of events made by the drivers is: {averageNoEvents}')
 
         fig = px.bar(eventsPerDriver.reset_index(),  x='Number of event',
                      y='DriverID', color='Number of event', barmode='group', orientation='h')
@@ -1056,7 +1053,8 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
         # fig.show()
         fig.write_html('./HTML Charts/Year/Number of trips per Driver.html')
 
-        fig = px.histogram(eventsPerDriver.reset_index(), x='Number of event')
+        fig = px.histogram(eventsPerDriver.reset_index(),
+                           x='Number of event')
         fig.update_layout(
             xaxis_title="Number of Events",
             yaxis_title="Number of drivers in Range",
@@ -1066,14 +1064,14 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
         # fig.show()
         fig.write_html('./HTML Charts/Year/Histogram of Events.html')
 
-        # maxEventsPerDriver = eventsPerDriver['Number of event'].max()
-        # DriverID = eventsPerDriver['Number of event'].idxmax()
+        #maxEventsPerDriver = eventsPerDriver['Number of event'].max()
+        #DriverID = eventsPerDriver['Number of event'].idxmax()
         # print(
-        # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
-        # minEventsPerdriver = eventsPerDriver['Number of event'].min()
-        # DriverID = eventsPerDriver['Number of event'].idxmin()
+            # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
+        #minEventsPerdriver = eventsPerDriver['Number of event'].min()
+        #DriverID = eventsPerDriver['Number of event'].idxmin()
         # print(
-        # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
+            # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
         # Event Type
         dfReasonHist = day.groupby(['event'])[['event']].agg('count').add_prefix(
             'Number of ').reset_index().sort_values('Number of event', ascending=True)
@@ -1091,11 +1089,11 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
 
         # Handling Behavioral and Non-behavioral Events
         # non-behavioral events
-        # non_behavioral_events = [event for event in day.event if event not in [
+        #non_behavioral_events = [event for event in day.event if event not in [
         #    'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
-        # newCount = len(day[day['event'].isin(non_behavioral_events)])
+        #newCount = len(day[day['event'].isin(non_behavioral_events)])
         # print("Number of events before removing non-behavioral events is: {}.\nAfter removing non-behavioral events, we have: {} events.\nThis led to a reduction in the data size by: {:0.2f}%, leaving: {:0.2f}% of the entire data size.\nCurrent number of events is: {}".format(
-        # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
+            # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
         # Specifying behavioral events
         behavioral_events = [event for event in day.event if event in [
             'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
@@ -1104,14 +1102,14 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
         def prepData(day, minRecordsPerSubscriber=0):
             day.reset_index(inplace=True)
             # print(
-            # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
+                # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
             # Remove NAs
-            # df = day.dropna()
+            #df = day.dropna()
             # print(f"Removing NAs, we are left with: {len(df)} trips")
             # Filter out unwanted events
             df4 = day[day['event'].isin(behavioral_events)]
             # print(
-            # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
+                # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
             # Filter out users with too few samples
             eventCountPerdriver = df4.groupby(
                 'DriverID')['DriverID'].agg('count')
@@ -1120,9 +1118,9 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
             driversWithManyRecords.keys()
             df5 = df4[df4['DriverID'].isin(driversWithManyRecords.keys())]
             # print(
-            # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
+                # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
             # print("*** Done. ***")
-            return (df5)
+            return(df5)
 
         df6 = prepData(day)
         relevantEventsPerSubscriber = df6.groupby('DriverID').agg(
@@ -1283,8 +1281,8 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
             # Pivot events into columns
             # Pivot the table by setting the drivers' name as the index column, while the respective events takes on a column each.
             # Finally, fill missing observations with zeros(0s)
-            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=['event'],
-                                                     values='Number of event').add_prefix('F_').fillna(0).reset_index()
+            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=[
+                                                     'event'], values='Number of event').add_prefix('F_').fillna(0).reset_index()
             # Merge the created pivot table with the earlier created dataframe for distance traveled per driver.
             dfEventMatrix = dfEventMatrix.merge(
                 distancePerdriver, how='inner', on='DriverID')
@@ -1378,7 +1376,7 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
                 return x
             valueGreaterThanZero = np.where(x <= 0, 0, x)
             positives = x[valueGreaterThanZero == 1]
-            if (len(positives) > 0):
+            if(len(positives) > 0):
                 xt[valueGreaterThanZero == 1], _ = st.boxcox(positives+1)
             if min_max_transform:
                 xt = (xt - np.min(xt)) / (np.max(xt)-np.min(xt))
@@ -1414,11 +1412,11 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
             inliers = np.where(xt <= xMean + stdFactor*xStd)[0]
             if len(outliers) > 0:
                 # print("found outlier with factor: " +
-                # str(stdFactor)+" : "+str(outliers))
+                      # str(stdFactor)+" : "+str(outliers))
                 xinline = x[inliers]
                 maxInRange = np.max(xinline)
                 # print("replacing outliers {} with max={}".format(
-                # outliers, maxInRange))
+                    # outliers, maxInRange))
                 vals = x.copy()
                 vals[outliers] = maxInRange
                 x = pd.Series(vals)
@@ -1437,7 +1435,8 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
         # print("A preview of the cleaned data after handling outliers")
         # print(cleanFeatures.head())
 
-        fig = px.scatter_matrix(cleanFeatures.reset_index(), dimensions=['Hard Acceleration', 'Hard Braking', 'Hard Cornering', 'Overspeed'],
+        fig = px.scatter_matrix(cleanFeatures.reset_index(), dimensions=['Hard Acceleration',
+                                                                         'Hard Braking', 'Hard Cornering', 'Overspeed'],
                                 color='DriverID', width=800, height=800)
         # fig.show()
         fig.write_html(
@@ -1465,8 +1464,8 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
         maxPerFeature = cleanFeatures.max()
         # print("Min and Max values per column before normalization")
         # for col in range(0, len(cleanFeatures.columns)):
-        # print(
-        # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
+            # print(
+                # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
         normalizedFeatures = (cleanFeatures-minPerFeature) / \
             (maxPerFeature-minPerFeature)
         normalizedFeatures = normalizedFeatures.replace(
@@ -1487,27 +1486,27 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
 
         # print("Mean and STD before standardization")
         # for col in range(0, len(transFeatures.columns)):
-        # print(
-        # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
+            # print(
+                # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
 
         # Anomaly Detection:
         # LOF - Local Outlier Filter
-        # X = transFeaturesScaled.values
-        # X = np.nan_to_num(X)
-        # clf = LocalOutlierFactor(n_neighbors=5)
-        # isOutlier = clf.fit_predict(X)
-        # plt.title("Local Outlier Factor (LOF)", fontsize=20)
-        # a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
+        #X = transFeaturesScaled.values
+        #X = np.nan_to_num(X)
+        #clf = LocalOutlierFactor(n_neighbors=5)
+        #isOutlier = clf.fit_predict(X)
+        #plt.title("Local Outlier Factor (LOF)", fontsize=20)
+        #a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
         #                edgecolor='k', s=40)
-        # b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
+        #b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
         #                edgecolor='k', s=40)
-        # fig = plt.gcf()
-        # fig.set_size_inches(15, 10)
-        # plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
-        # plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
-        # plt.xlim((-0.01, 1.01))
-        # plt.ylim((-0.01, 1.01))
-        # plt.legend([a, b],
+        #fig = plt.gcf()
+        #fig.set_size_inches(15, 10)
+        #plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
+        #plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
+        #plt.xlim((-0.01, 1.01))
+        #plt.ylim((-0.01, 1.01))
+        #plt.legend([a, b],
         #           ["normal observations",
         #            "abnormal observations"],
         #           loc="upper right", prop={'size': 15}, frameon=True)
@@ -1517,18 +1516,18 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
         # Multivariate analysis
         # Dimensionality reduction
         # PCA
-        # pca = PCA(n_components=4)
-        # principalComponents = pca.fit_transform(normalizedFeatures)
-        # column_names = ['principal component {}'.format(
+        #pca = PCA(n_components=4)
+        #principalComponents = pca.fit_transform(normalizedFeatures)
+        #column_names = ['principal component {}'.format(
         #    i) for i in range(normalizedFeatures.shape[1])]
         # plt.bar(x=column_names, height=pca.explained_variance_ratio_)
         # plt.title("Percentage of explained variance")
         # fig.show()
         # print("Principal components explained variance ratio: {}.".format(
-        # pca.explained_variance_ratio_))
-        # principalDf = pd.DataFrame(
+            # pca.explained_variance_ratio_))
+        #principalDf = pd.DataFrame(
         #    data=principalComponents, columns=column_names)
-        # df = normalizedFeatures
+        #df = normalizedFeatures
         # fig = plt.gcf()
         # fig.set_size_inches(15, 10)
         # Show correlation matrix of the original features and the first principal component
@@ -1554,7 +1553,7 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
             xPositive = xPositive.fillna(0)
             # xPositive = xPositive.replace
             probs = np.zeros(len(series))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 params = st.expon.fit(xPositive)
                 arg = params[:-2]
                 loc = params[-2]
@@ -1566,7 +1565,7 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
             # print("Calculating scores for feature: " + x.name)
             xPositive = x[x > 0]
             probs = np.zeros(len(x))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 arg = fittedParams[x.name]['arg']
                 loc = fittedParams[x.name]['loc']
                 scale = fittedParams[x.name]['scale']
@@ -1593,10 +1592,10 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
         # Cumulative distribution/density function
         perFeatureScores = normalizedFeatures.apply(calculate_score_for_series, args=(
             fittedParams, False), axis=0).add_suffix("_CDF")
-        # perFeatureScores.head()
-        # DIST = st.expon
+        #perFeatureScores.head()
+        #DIST = st.expon
 
-        # def create_pdf(dist, params, size=10000):
+        #def create_pdf(dist, params, size=10000):
         #    # Separate parts of parameters
         #    arg = params[:-2]
         #    loc = params[-2]
@@ -1660,9 +1659,9 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
         driverScores = calculate_joint_score(perFeatureScores)
         driverScores = driverScores.reset_index()
         driverScores = driverScores.rename(columns={'DriverID': 'Driver ID', 'Hard Acceleration_CDF': 'Hard Acceleration',
-                                                    'Hard Braking_CDF': 'Hard Braking', 'Hard Cornering_CDF': 'Hard Cornering',
-                                                    'Overspeed_CDF': 'Overspeed', 'score': 'Score', 'rank': 'Position'},
-                                           inplace=False)
+                                                    'Hard Braking_CDF': 'Hard Braking',
+                                           'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed',
+                                           'score': 'Score', 'rank': 'Position'}, inplace=False)
         # print(driverScores.head())
         driverScores['Score'] = driverScores['Score']*100
         driverScores['Position'] = driverScores['Position']
@@ -1685,13 +1684,13 @@ async def get_driver_score_per_year_per_driver(year: int, driverID: int):
             condition)
 
         driverScores1 = driverScores[['Driver ID',
-                                      'Score', 'Position', 'Safety Class']]
+                                     'Score', 'Position', 'Safety Class']]
         driverScores1 = driverScores1.sort_values(
             by='Score', ascending=False)
 
         result = driverScores1.to_json(orient="records")
-        # parsed = json.loads(result)
-        # json.dumps(parsed, indent=4)
+        #parsed = json.loads(result)
+        #json.dumps(parsed, indent=4)
         # print("Score obtained per driver")
         # print(driverScores1)
 
@@ -1724,18 +1723,18 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
     else:
         day = data[(data['eventyear'] == year) & (data['eventmonth'] == month)]
         # print('A preview at the selected month', day.head())
-        # eventCount = len(day.event)
+        #eventCount = len(day.event)
         # print(
-        # f'The number of events made in the selected month is: {eventCount} events'
+            # f'The number of events made in the selected month is: {eventCount} events'
         # )
-        # driverCount = day.DriverID.nunique()
+        #driverCount = day.DriverID.nunique()
         # print(
-        # f"The number of drivers in this date range is: {driverCount}")
+            # f"The number of drivers in this date range is: {driverCount}")
         eventsPerDriver = day.groupby('DriverID', as_index=True).agg(
             {"event": "count"}).add_prefix('Number of ')
-        # averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
+        #averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
         # print(
-        # f'The average number of events made by the drivers is: {averageNoEvents}')
+            # f'The average number of events made by the drivers is: {averageNoEvents}')
 
         fig = px.bar(eventsPerDriver.reset_index(),  x='Number of event',
                      y='DriverID', color='Number of event', barmode='group', orientation='h')
@@ -1761,14 +1760,14 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
         # fig.show()
         fig.write_html('./HTML Charts/Year and Month/Histogram of Event.html')
 
-        # maxEventsPerDriver = eventsPerDriver['Number of event'].max()
-        # DriverID = eventsPerDriver['Number of event'].idxmax()
+        #maxEventsPerDriver = eventsPerDriver['Number of event'].max()
+        #DriverID = eventsPerDriver['Number of event'].idxmax()
         # print(
-        # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
-        # minEventsPerdriver = eventsPerDriver['Number of event'].min()
-        # DriverID = eventsPerDriver['Number of event'].idxmin()
+            # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
+        #minEventsPerdriver = eventsPerDriver['Number of event'].min()
+        #DriverID = eventsPerDriver['Number of event'].idxmin()
         # print(
-        # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
+            # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
         # Event Type
         dfReasonHist = day.groupby(['event'])[['event']].agg('count').add_prefix(
             'Number of ').reset_index().sort_values('Number of event', ascending=True)
@@ -1786,11 +1785,11 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
 
         # Handling Behavioral and Non-behavioral Events
         # non-behavioral events
-        # non_behavioral_events = [event for event in day.event if event not in [
+        #non_behavioral_events = [event for event in day.event if event not in [
         #    'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
-        # newCount = len(day[day['event'].isin(non_behavioral_events)])
+        #newCount = len(day[day['event'].isin(non_behavioral_events)])
         # print("Number of events before removing non-behavioral events is: {}.\nAfter removing non-behavioral events, we have: {} events.\nThis led to a reduction in the data size by: {:0.2f}%, leaving: {:0.2f}% of the entire data size.\nCurrent number of events is: {}".format(
-        # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
+            # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
         # Specifying behavioral events
         behavioral_events = [event for event in day.event if event in [
             'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
@@ -1799,14 +1798,14 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
         def prepData(day, minRecordsPerSubscriber=0):
             day.reset_index(inplace=True)
             # print(
-            # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
+                # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
             # Remove NAs
-            # df = day.dropna()
+            #df = day.dropna()
             # print(f"Removing NAs, we are left with: {len(df)} trips")
             # Filter out unwanted events
             df4 = day[day['event'].isin(behavioral_events)]
             # print(
-            # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
+                # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
             # Filter out users with too few samples
             eventCountPerdriver = df4.groupby(
                 'DriverID')['DriverID'].agg('count')
@@ -1815,9 +1814,9 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
             driversWithManyRecords.keys()
             df5 = df4[df4['DriverID'].isin(driversWithManyRecords.keys())]
             # print(
-            # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
+                # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
             # print("*** Done. ***")
-            return (df5)
+            return(df5)
 
         df6 = prepData(day)
         relevantEventsPerSubscriber = df6.groupby('DriverID').agg(
@@ -1978,8 +1977,8 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
                 'count').add_prefix('Number of ').reset_index()
             # Pivot events into columns
             # Pivot the table by setting the drivers' name as the index column, while the respective events takes on a column each. Finally, fill missing observations with zeros(0s)
-            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=['event'],
-                                                     values='Number of event').add_prefix('F_').fillna(0).reset_index()
+            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=[
+                                                     'event'], values='Number of event').add_prefix('F_').fillna(0).reset_index()
             # Merge the created pivot table with the earlier created dataframe for distance traveled per driver.
             dfEventMatrix = dfEventMatrix.merge(
                 distancePerdriver, how='inner', on='DriverID')
@@ -2074,7 +2073,7 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
                 return x
             valueGreaterThanZero = np.where(x <= 0, 0, x)
             positives = x[valueGreaterThanZero == 1]
-            if (len(positives) > 0):
+            if(len(positives) > 0):
                 xt[valueGreaterThanZero == 1], _ = st.boxcox(positives+1)
             if min_max_transform:
                 xt = (xt - np.min(xt)) / (np.max(xt)-np.min(xt))
@@ -2110,11 +2109,11 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
             inliers = np.where(xt <= xMean + stdFactor*xStd)[0]
             if len(outliers) > 0:
                 # print("found outlier with factor: " +
-                # str(stdFactor)+" : "+str(outliers))
+                      # str(stdFactor)+" : "+str(outliers))
                 xinline = x[inliers]
                 maxInRange = np.max(xinline)
                 # print("replacing outliers {} with max={}".format(
-                # outliers, maxInRange))
+                    # outliers, maxInRange))
                 vals = x.copy()
                 vals[outliers] = maxInRange
                 x = pd.Series(vals)
@@ -2161,8 +2160,8 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
         maxPerFeature = cleanFeatures.max()
         # print("Min and Max values per column before normalization")
         # for col in range(0, len(cleanFeatures.columns)):
-        # print(
-        # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
+            # print(
+                # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
         normalizedFeatures = (cleanFeatures-minPerFeature) / \
             (maxPerFeature-minPerFeature)
         normalizedFeatures = normalizedFeatures.replace(
@@ -2183,27 +2182,27 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
 
         # print("Mean and STD before standardization")
         # for col in range(0, len(transFeatures.columns)):
-        # print(
-        # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
+            # print(
+                # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
 
         # Anomaly Detection:
         # LOF - Local Outlier Filter
-        # X = transFeaturesScaled.values
-        # X = np.nan_to_num(X)
-        # clf = LocalOutlierFactor(n_neighbors=5)
-        # isOutlier = clf.fit_predict(X)
-        # plt.title("Local Outlier Factor (LOF)", fontsize=20)
-        # a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
+        #X = transFeaturesScaled.values
+        #X = np.nan_to_num(X)
+        #clf = LocalOutlierFactor(n_neighbors=5)
+        #isOutlier = clf.fit_predict(X)
+        #plt.title("Local Outlier Factor (LOF)", fontsize=20)
+        #a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
         #                edgecolor='k', s=40)
-        # b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
+        #b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
         #                edgecolor='k', s=40)
-        # fig = plt.gcf()
-        # fig.set_size_inches(15, 10)
-        # plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
-        # plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
-        # plt.xlim((-0.01, 1.01))
-        # plt.ylim((-0.01, 1.01))
-        # plt.legend([a, b],
+        #fig = plt.gcf()
+        #fig.set_size_inches(15, 10)
+        #plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
+        #plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
+        #plt.xlim((-0.01, 1.01))
+        #plt.ylim((-0.01, 1.01))
+        #plt.legend([a, b],
         #           ["normal observations",
         #            "abnormal observations"],
         #           loc="upper right", prop={'size': 15}, frameon=True)
@@ -2213,18 +2212,18 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
         # Multivariate analysis
         # Dimensionality reduction
         # PCA
-        # pca = PCA(n_components=4)
-        # principalComponents = pca.fit_transform(normalizedFeatures)
-        # column_names = ['principal component {}'.format(
+        #pca = PCA(n_components=4)
+        #principalComponents = pca.fit_transform(normalizedFeatures)
+        #column_names = ['principal component {}'.format(
         #    i) for i in range(normalizedFeatures.shape[1])]
         # plt.bar(x=column_names, height=pca.explained_variance_ratio_)
         # plt.title("Percentage of explained variance")
         # fig.show()
         # print("Principal components explained variance ratio: {}.".format(
-        # pca.explained_variance_ratio_))
-        # principalDf = pd.DataFrame(
+            # pca.explained_variance_ratio_))
+        #principalDf = pd.DataFrame(
         #    data=principalComponents, columns=column_names)
-        # df = normalizedFeatures
+        #df = normalizedFeatures
 
         # fig = plt.gcf()
         # fig.set_size_inches(15, 10)
@@ -2239,7 +2238,7 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
         # fig.write_html('./HTML Charts/Year and Month/pca.html')
 
         # Extract statistics from the fitted distributions
-        # normalizedFeatures.head()
+        #normalizedFeatures.head()
 
         # Fit exponential distribution
         def fit_distribution_params(series):
@@ -2251,7 +2250,7 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
             xPositive = xPositive.fillna(0)
             # xPositive = xPositive.replace
             probs = np.zeros(len(series))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 params = st.expon.fit(xPositive)
                 arg = params[:-2]
                 loc = params[-2]
@@ -2263,7 +2262,7 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
             # print("Calculating scores for feature: " + x.name)
             xPositive = x[x > 0]
             probs = np.zeros(len(x))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 arg = fittedParams[x.name]['arg']
                 loc = fittedParams[x.name]['loc']
                 scale = fittedParams[x.name]['scale']
@@ -2290,10 +2289,10 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
         # Cumulative distribution/density function
         perFeatureScores = normalizedFeatures.apply(calculate_score_for_series, args=(
             fittedParams, False), axis=0).add_suffix("_CDF")
-        # perFeatureScores.head()
-        # DIST = st.expon
+        #perFeatureScores.head()
+        #DIST = st.expon
 
-        # def create_pdf(dist, params, size=10000):
+        #def create_pdf(dist, params, size=10000):
         #    # Separate parts of parameters
         #    arg = params[:-2]
         #    loc = params[-2]
@@ -2357,8 +2356,7 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
         driverScores = calculate_joint_score(perFeatureScores)
         driverScores = driverScores.reset_index()
         driverScores = driverScores.rename(columns={'DriverID': 'Driver ID', 'Hard Acceleration_CDF': 'Hard Acceleration', 'Hard Braking_CDF': 'Hard Braking',
-                                                    'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed', 'score': 'Score', 'rank': 'Position'},
-                                           inplace=False)
+                                           'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed', 'score': 'Score', 'rank': 'Position'}, inplace=False)
         # print(driverScores.head())
         driverScores['Score'] = driverScores['Score']*100
         driverScores['Position'] = driverScores['Position']
@@ -2381,7 +2379,7 @@ async def get_driver_score_per_year_per_month(year: int, month: str):
             condition)
 
         driverScores1 = driverScores[['Driver ID',
-                                      'Score', 'Position', 'Safety Class']]
+                                     'Score', 'Position', 'Safety Class']]
         driverScores1 = driverScores1.sort_values(
             by='Score', ascending=False)
 
@@ -2419,18 +2417,18 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         day = data[(data['eventyear'] == year) & (
             data['eventmonth'] == month)]
         # print('A preview at the selected month', day.head())
-        # eventCount = len(day.event)
+        #eventCount = len(day.event)
         # print(
-        # f'The number of events made in the selected month is: {eventCount} events'
+            # f'The number of events made in the selected month is: {eventCount} events'
         # )
-        # driverCount = day.DriverID.nunique()
+        #driverCount = day.DriverID.nunique()
         # print(
-        # f"The number of drivers in this date range is: {driverCount}")
+            # f"The number of drivers in this date range is: {driverCount}")
         eventsPerDriver = day.groupby('DriverID', as_index=True).agg(
             {"event": "count"}).add_prefix('Number of ')
-        # averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
+        #averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
         # print(
-        # f'The average number of events made by the drivers is: {averageNoEvents}')
+            # f'The average number of events made by the drivers is: {averageNoEvents}')
 
         fig = px.bar(eventsPerDriver.reset_index(),  x='Number of event',
                      y='DriverID', color='Number of event', barmode='group', orientation='h')
@@ -2457,14 +2455,14 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         fig.write_html(
             './HTML Charts/Year and Month and ID/Histogram of Event Counts_.html')
 
-        # maxEventsPerDriver = eventsPerDriver['Number of event'].max()
-        # DriverID = eventsPerDriver['Number of event'].idxmax()
+        #maxEventsPerDriver = eventsPerDriver['Number of event'].max()
+        #DriverID = eventsPerDriver['Number of event'].idxmax()
         # print(
-        # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
-        # minEventsPerdriver = eventsPerDriver['Number of event'].min()
-        # DriverID = eventsPerDriver['Number of event'].idxmin()
+            # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
+        #minEventsPerdriver = eventsPerDriver['Number of event'].min()
+        #DriverID = eventsPerDriver['Number of event'].idxmin()
         # print(
-        # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
+            # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
         # Event Type
         dfReasonHist = day.groupby(['event'])[['event']].agg('count').add_prefix(
             'Number of ').reset_index().sort_values('Number of event', ascending=True)
@@ -2482,11 +2480,11 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
 
         # Handling Behavioral and Non-behavioral Events
         # non-behavioral events
-        # non_behavioral_events = [event for event in day.event if event not in [
+        #non_behavioral_events = [event for event in day.event if event not in [
         #    'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
-        # newCount = len(day[day['event'].isin(non_behavioral_events)])
+        #newCount = len(day[day['event'].isin(non_behavioral_events)])
         # print("Number of events before removing non-behavioral events is: {}.\nAfter removing non-behavioral events, we have: {} events.\nThis led to a reduction in the data size by: {:0.2f}%, leaving: {:0.2f}% of the entire data size.\nCurrent number of events is: {}".format(
-        # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
+            # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
         # Specifying behavioral events
         behavioral_events = [event for event in day.event if event in [
             'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
@@ -2495,14 +2493,14 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         def prepData(day, minRecordsPerSubscriber=0):
             day.reset_index(inplace=True)
             # print(
-            # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
+                # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
             # Remove NAs
-            # df = day.dropna()
+            #df = day.dropna()
             # print(f"Removing NAs, we are left with: {len(df)} trips")
             # Filter out unwanted events
             df4 = day[day['event'].isin(behavioral_events)]
             # print(
-            # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
+                # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
             # Filter out users with too few samples
             eventCountPerdriver = df4.groupby(
                 'DriverID')['DriverID'].agg('count')
@@ -2511,9 +2509,9 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
             driversWithManyRecords.keys()
             df5 = df4[df4['DriverID'].isin(driversWithManyRecords.keys())]
             # print(
-            # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
+                # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
             # print("*** Done. ***")
-            return (df5)
+            return(df5)
         df6 = prepData(day)
         relevantEventsPerSubscriber = df6.groupby('DriverID').agg(
             {"event": "count"}).sort_values(by='event', ascending=False)
@@ -2595,8 +2593,8 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
                 'count').add_prefix('Number of ').reset_index()
             # Pivot events into columns
             # Pivot the table by setting the drivers' name as the index column, while the respective events takes on a column each. Finally, fill missing observations with zeros(0s)
-            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=['event'],
-                                                     values='Number of event').add_prefix('F_').fillna(0).reset_index()
+            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=[
+                                                     'event'], values='Number of event').add_prefix('F_').fillna(0).reset_index()
             # Merge the created pivot table with the earlier created dataframe for distance traveled per driver.
             dfEventMatrix = dfEventMatrix.merge(
                 distancePerdriver, how='inner', on='DriverID')
@@ -2686,7 +2684,7 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
                 return x
             valueGreaterThanZero = np.where(x <= 0, 0, x)
             positives = x[valueGreaterThanZero == 1]
-            if (len(positives) > 0):
+            if(len(positives) > 0):
                 xt[valueGreaterThanZero == 1], _ = st.boxcox(positives+1)
             if min_max_transform:
                 xt = (xt - np.min(xt)) / (np.max(xt)-np.min(xt))
@@ -2722,11 +2720,11 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
             inliers = np.where(xt <= xMean + stdFactor*xStd)[0]
             if len(outliers) > 0:
                 # print("found outlier with factor: " +
-                # str(stdFactor)+" : "+str(outliers))
+                      # str(stdFactor)+" : "+str(outliers))
                 xinline = x[inliers]
                 maxInRange = np.max(xinline)
                 # print("replacing outliers {} with max={}".format(
-                # outliers, maxInRange))
+                    # outliers, maxInRange))
                 vals = x.copy()
                 vals[outliers] = maxInRange
                 x = pd.Series(vals)
@@ -2759,9 +2757,9 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         # print(corr)
 
         # Plot the heatmap of the correlation matrix
-        # print(f"""
-        # Correlation Heatmap
-        # """)
+       # print(f"""
+                      # Correlation Heatmap
+                       # """)
         fig = px.imshow(corr, color_continuous_scale='hot',
                         title='Correlation Heatmap', width=600, height=500, aspect='equal')
         # fig.show()
@@ -2774,8 +2772,8 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         maxPerFeature = cleanFeatures.max()
         # print("Min and Max values per column before normalization")
         # for col in range(0, len(cleanFeatures.columns)):
-        # print(
-        # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
+            # print(
+                # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
         normalizedFeatures = (cleanFeatures-minPerFeature) / \
             (maxPerFeature-minPerFeature)
         normalizedFeatures = normalizedFeatures.replace(
@@ -2794,27 +2792,27 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         # print(transFeaturesScaled.head())
         # print("Mean and STD before standardization")
         # for col in range(0, len(transFeatures.columns)):
-        # print(
-        # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
+            # print(
+                # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
         # Anomaly Detection:
         # LOF - Local Outlier Filter
-        # X = transFeaturesScaled.values
-        # X = np.nan_to_num(X)
-        # clf = LocalOutlierFactor(n_neighbors=5)
-        # isOutlier = clf.fit_predict(X)
+        #X = transFeaturesScaled.values
+        #X = np.nan_to_num(X)
+        #clf = LocalOutlierFactor(n_neighbors=5)
+        #isOutlier = clf.fit_predict(X)
 #
-        # plt.title("Local Outlier Factor (LOF)", fontsize=20)
-        # a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
+        #plt.title("Local Outlier Factor (LOF)", fontsize=20)
+        #a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
         #                edgecolor='k', s=40)
-        # b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
+        #b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
         #                edgecolor='k', s=40)
-        # fig = plt.gcf()
-        # fig.set_size_inches(15, 10)
-        # plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
-        # plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
-        # plt.xlim((-0.01, 1.01))
-        # plt.ylim((-0.01, 1.01))
-        # plt.legend([a, b],
+        #fig = plt.gcf()
+        #fig.set_size_inches(15, 10)
+        #plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
+        #plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
+        #plt.xlim((-0.01, 1.01))
+        #plt.ylim((-0.01, 1.01))
+        #plt.legend([a, b],
         #           ["normal observations",
         #            "abnormal observations"],
         #           loc="upper right", prop={'size': 15}, frameon=True)
@@ -2824,18 +2822,18 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         # Multivariate analysis
         # Dimensionality reduction
         # PCA
-        # pca = PCA(n_components=4)
-        # principalComponents = pca.fit_transform(normalizedFeatures)
-        # column_names = ['principal component {}'.format(
+        #pca = PCA(n_components=4)
+        #principalComponents = pca.fit_transform(normalizedFeatures)
+        #column_names = ['principal component {}'.format(
         #    i) for i in range(normalizedFeatures.shape[1])]
         # plt.bar(x=column_names, height=pca.explained_variance_ratio_)
         # plt.title("Percentage of explained variance")
         # fig.show()
         # print("Principal components explained variance ratio: {}.".format(
-        # pca.explained_variance_ratio_))
-        # principalDf = pd.DataFrame(
+            # pca.explained_variance_ratio_))
+        #principalDf = pd.DataFrame(
         #    data=principalComponents, columns=column_names)
-        # df = normalizedFeatures
+        #df = normalizedFeatures
         # fig = plt.gcf()
         # fig.set_size_inches(15, 10)
         # Show correlation matrix of the original features and the first principal component
@@ -2847,7 +2845,7 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         # sns.pairplot(pcAndOriginal, y_vars=['principal component 0'],
         #             x_vars=['Hard Acceleration', 'Hard Braking', 'Hard Cornering', 'Overspeed'])
         # Extract statistics from the fitted distributions
-        # normalizedFeatures.head()
+        #normalizedFeatures.head()
 
         # Fit exponential distribution
         def fit_distribution_params(series):
@@ -2859,7 +2857,7 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
             xPositive = xPositive.fillna(0)
             # xPositive = xPositive.replace
             probs = np.zeros(len(series))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 params = st.expon.fit(xPositive)
                 arg = params[:-2]
                 loc = params[-2]
@@ -2871,7 +2869,7 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
             # print("Calculating scores for feature: " + x.name)
             xPositive = x[x > 0]
             probs = np.zeros(len(x))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 arg = fittedParams[x.name]['arg']
                 loc = fittedParams[x.name]['loc']
                 scale = fittedParams[x.name]['scale']
@@ -2896,10 +2894,10 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         # Cumulative distribution/density function
         perFeatureScores = normalizedFeatures.apply(calculate_score_for_series, args=(
             fittedParams, False), axis=0).add_suffix("_CDF")
-        # perFeatureScores.head()
-        # DIST = st.expon
+        #perFeatureScores.head()
+        #DIST = st.expon
 
-        # def create_pdf(dist, params, size=10000):
+        #def create_pdf(dist, params, size=10000):
         #    # Separate parts of parameters
         #    arg = params[:-2]
         #    loc = params[-2]
@@ -2912,7 +2910,7 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         #    y = dist.pdf(x, loc=loc, scale=scale, *arg)
         #    pdf = pd.Series(y, x)
         #    return pdf
-
+        
         # fit exponential distribution
         # fig, axs = plt.subplots(1, 4, figsize=(
         # 15, 6), facecolor='w', edgecolor='k')
@@ -2961,7 +2959,7 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         driverScores = calculate_joint_score(perFeatureScores)
         driverScores = driverScores.reset_index()
         driverScores = driverScores.rename(columns={'DriverID': 'Driver ID', 'Hard Acceleration_CDF': 'Hard Acceleration', 'Hard Braking_CDF': 'Hard Braking',
-                                                    'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed', 'score': 'Score', 'rank': 'Position'}, inplace=False)
+                                           'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed', 'score': 'Score', 'rank': 'Position'}, inplace=False)
         # print(driverScores.head())
         driverScores['Score'] = driverScores['Score']*100
         driverScores['Position'] = driverScores['Position']
@@ -2985,7 +2983,7 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
         if id in driverScores['Driver ID'].values:
             driverScores1 = driverScores[driverScores['Driver ID'] == id]
             driverScores1 = driverScores1[[
-                'Driver ID', 'Score', 'Position', 'Safety Class']]
+            'Driver ID' , 'Score', 'Position', 'Safety Class']]
             print("Score obtained per driver")
             print(driverScores1)
             result = driverScores1.to_json(orient="records")
@@ -2998,8 +2996,7 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
 
 @app.get('/getAnnualScorePerQuarter/{year}/{quarter}')
 async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
-    day = updated_data[(updated_data['eventyear'] == year)
-                       & (updated_data['eventquarter'] == quarter)]
+    day = updated_data[(updated_data['eventyear'] == year) & (updated_data['eventquarter'] == quarter)]
 
     if day.shape[0] < 600:
         return {"message": "Not Enough Records, Please Select Another Quarter", "status": 401}
@@ -3007,18 +3004,18 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
         day = updated_data[(updated_data['eventyear'] == year) & (
             updated_data['eventquarter'] == quarter)]
         print('A preview at the selected quarter', day.head())
-        # eventCount = len(day.event)
+        #eventCount = len(day.event)
         # print(
-        # f'The number of events made in the selected month is: {eventCount} events'
+            # f'The number of events made in the selected month is: {eventCount} events'
         # )
-        # driverCount = day.DriverID.nunique()
+        #driverCount = day.DriverID.nunique()
         # print(
-        # f"The number of drivers in this date range is: {driverCount}")
+            # f"The number of drivers in this date range is: {driverCount}")
         eventsPerDriver = day.groupby('DriverID', as_index=True).agg(
             {"event": "count"}).add_prefix('Number of ')
-        # averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
+        #averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
         # print(
-        # f'The average number of events made by the drivers is: {averageNoEvents}')
+            # f'The average number of events made by the drivers is: {averageNoEvents}')
 
         fig = px.bar(eventsPerDriver.reset_index(),  x='Number of event',
                      y='DriverID', color='Number of event', barmode='group', orientation='h')
@@ -3042,17 +3039,16 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
             template="plotly_white"
         )
         # fig.show()
-        fig.write_html(
-            './HTML Charts/Year and Quarter/Histogram of Event.html')
+        fig.write_html('./HTML Charts/Year and Quarter/Histogram of Event.html')
 
-        # maxEventsPerDriver = eventsPerDriver['Number of event'].max()
-        # DriverID = eventsPerDriver['Number of event'].idxmax()
+        #maxEventsPerDriver = eventsPerDriver['Number of event'].max()
+        #DriverID = eventsPerDriver['Number of event'].idxmax()
         # print(
-        # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
-        # minEventsPerdriver = eventsPerDriver['Number of event'].min()
-        # DriverID = eventsPerDriver['Number of event'].idxmin()
+            # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
+        #minEventsPerdriver = eventsPerDriver['Number of event'].min()
+        #DriverID = eventsPerDriver['Number of event'].idxmin()
         # print(
-        # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
+            # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
         # Event Type
         dfReasonHist = day.groupby(['event'])[['event']].agg('count').add_prefix(
             'Number of ').reset_index().sort_values('Number of event', ascending=True)
@@ -3070,11 +3066,11 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
 
         # Handling Behavioral and Non-behavioral Events
         # non-behavioral events
-        # non_behavioral_events = [event for event in day.event if event not in [
+        #non_behavioral_events = [event for event in day.event if event not in [
         #    'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
-        # newCount = len(day[day['event'].isin(non_behavioral_events)])
+        #newCount = len(day[day['event'].isin(non_behavioral_events)])
         # print("Number of events before removing non-behavioral events is: {}.\nAfter removing non-behavioral events, we have: {} events.\nThis led to a reduction in the data size by: {:0.2f}%, leaving: {:0.2f}% of the entire data size.\nCurrent number of events is: {}".format(
-        # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
+            # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
         # Specifying behavioral events
         behavioral_events = [event for event in day.event if event in [
             'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
@@ -3083,14 +3079,14 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
         def prepData(day, minRecordsPerSubscriber=0):
             day.reset_index(inplace=True)
             # print(
-            # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
+                # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
             # Remove NAs
-            # df = day.dropna()
+            #df = day.dropna()
             # print(f"Removing NAs, we are left with: {len(df)} trips")
             # Filter out unwanted events
             df4 = day[day['event'].isin(behavioral_events)]
             # print(
-            # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
+                # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
             # Filter out users with too few samples
             eventCountPerdriver = df4.groupby(
                 'DriverID')['DriverID'].agg('count')
@@ -3099,9 +3095,9 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
             driversWithManyRecords.keys()
             df5 = df4[df4['DriverID'].isin(driversWithManyRecords.keys())]
             # print(
-            # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
+                # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
             # print("*** Done. ***")
-            return (df5)
+            return(df5)
 
         df6 = prepData(day)
         relevantEventsPerSubscriber = df6.groupby('DriverID').agg(
@@ -3262,8 +3258,8 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
                 'count').add_prefix('Number of ').reset_index()
             # Pivot events into columns
             # Pivot the table by setting the drivers' name as the index column, while the respective events takes on a column each. Finally, fill missing observations with zeros(0s)
-            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=['event'],
-                                                     values='Number of event').add_prefix('F_').fillna(0).reset_index()
+            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=[
+                                                     'event'], values='Number of event').add_prefix('F_').fillna(0).reset_index()
             # Merge the created pivot table with the earlier created dataframe for distance traveled per driver.
             dfEventMatrix = dfEventMatrix.merge(
                 distancePerdriver, how='inner', on='DriverID')
@@ -3358,7 +3354,7 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
                 return x
             valueGreaterThanZero = np.where(x <= 0, 0, x)
             positives = x[valueGreaterThanZero == 1]
-            if (len(positives) > 0):
+            if(len(positives) > 0):
                 xt[valueGreaterThanZero == 1], _ = st.boxcox(positives+1)
             if min_max_transform:
                 xt = (xt - np.min(xt)) / (np.max(xt)-np.min(xt))
@@ -3394,11 +3390,11 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
             inliers = np.where(xt <= xMean + stdFactor*xStd)[0]
             if len(outliers) > 0:
                 # print("found outlier with factor: " +
-                # str(stdFactor)+" : "+str(outliers))
+                      # str(stdFactor)+" : "+str(outliers))
                 xinline = x[inliers]
                 maxInRange = np.max(xinline)
                 # print("replacing outliers {} with max={}".format(
-                # outliers, maxInRange))
+                    # outliers, maxInRange))
                 vals = x.copy()
                 vals[outliers] = maxInRange
                 x = pd.Series(vals)
@@ -3437,8 +3433,7 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
         fig = px.imshow(corr, color_continuous_scale='hot',
                         title='Correlation Heatmap', width=600, height=500, aspect='equal')
         # fig.show()
-        fig.write_html(
-            './HTML Charts/Year and Quarter/Correlation Heatmap.html')
+        fig.write_html('./HTML Charts/Year and Quarter/Correlation Heatmap.html')
 
         # Pre step: Normalize features
         # print("Data normalization")
@@ -3468,27 +3463,27 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
 
         # print("Mean and STD before standardization")
         # for col in range(0, len(transFeatures.columns)):
-        # print(
-        # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
+            # print(
+                # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
 
         # Anomaly Detection:
         # LOF - Local Outlier Filter
-        # X = transFeaturesScaled.values
-        # X = np.nan_to_num(X)
-        # clf = LocalOutlierFactor(n_neighbors=5)
-        # isOutlier = clf.fit_predict(X)
-        # plt.title("Local Outlier Factor (LOF)", fontsize=20)
-        # a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
+        #X = transFeaturesScaled.values
+        #X = np.nan_to_num(X)
+        #clf = LocalOutlierFactor(n_neighbors=5)
+        #isOutlier = clf.fit_predict(X)
+        #plt.title("Local Outlier Factor (LOF)", fontsize=20)
+        #a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
         #                edgecolor='k', s=40)
-        # b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
+        #b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
         #                edgecolor='k', s=40)
-        # fig = plt.gcf()
-        # fig.set_size_inches(15, 10)
-        # plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
-        # plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
-        # plt.xlim((-0.01, 1.01))
-        # plt.ylim((-0.01, 1.01))
-        # plt.legend([a, b],
+        #fig = plt.gcf()
+        #fig.set_size_inches(15, 10)
+        #plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
+        #plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
+        #plt.xlim((-0.01, 1.01))
+        #plt.ylim((-0.01, 1.01))
+        #plt.legend([a, b],
         #           ["normal observations",
         #            "abnormal observations"],
         #           loc="upper right", prop={'size': 15}, frameon=True)
@@ -3498,18 +3493,18 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
         # Multivariate analysis
         # Dimensionality reduction
         # PCA
-        # pca = PCA(n_components=4)
-        # principalComponents = pca.fit_transform(normalizedFeatures)
-        # column_names = ['principal component {}'.format(
+        #pca = PCA(n_components=4)
+        #principalComponents = pca.fit_transform(normalizedFeatures)
+        #column_names = ['principal component {}'.format(
         #    i) for i in range(normalizedFeatures.shape[1])]
         # plt.bar(x=column_names, height=pca.explained_variance_ratio_)
         # plt.title("Percentage of explained variance")
         # fig.show()
         # print("Principal components explained variance ratio: {}.".format(
-        # pca.explained_variance_ratio_))
-        # principalDf = pd.DataFrame(
+            # pca.explained_variance_ratio_))
+        #principalDf = pd.DataFrame(
         #    data=principalComponents, columns=column_names)
-        # df = normalizedFeatures
+        #df = normalizedFeatures
 
         # fig = plt.gcf()
         # fig.set_size_inches(15, 10)
@@ -3524,7 +3519,7 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
         # fig.write_html('./HTML Charts/Year and Quarter/pca.html')
 
         # Extract statistics from the fitted distributions
-        # normalizedFeatures.head()
+        #normalizedFeatures.head()
 
         # Fit exponential distribution
         def fit_distribution_params(series):
@@ -3536,7 +3531,7 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
             xPositive = xPositive.fillna(0)
             # xPositive = xPositive.replace
             probs = np.zeros(len(series))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 params = st.expon.fit(xPositive)
                 arg = params[:-2]
                 loc = params[-2]
@@ -3548,7 +3543,7 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
             # print("Calculating scores for feature: " + x.name)
             xPositive = x[x > 0]
             probs = np.zeros(len(x))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 arg = fittedParams[x.name]['arg']
                 loc = fittedParams[x.name]['loc']
                 scale = fittedParams[x.name]['scale']
@@ -3575,10 +3570,10 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
         # Cumulative distribution/density function
         perFeatureScores = normalizedFeatures.apply(calculate_score_for_series, args=(
             fittedParams, False), axis=0).add_suffix("_CDF")
-        # perFeatureScores.head()
-        # DIST = st.expon
+        #perFeatureScores.head()
+        #DIST = st.expon
 
-        # def create_pdf(dist, params, size=10000):
+        #def create_pdf(dist, params, size=10000):
         #    # Separate parts of parameters
         #    arg = params[:-2]
         #    loc = params[-2]
@@ -3642,8 +3637,7 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
         driverScores = calculate_joint_score(perFeatureScores)
         driverScores = driverScores.reset_index()
         driverScores = driverScores.rename(columns={'DriverID': 'Driver ID', 'Hard Acceleration_CDF': 'Hard Acceleration', 'Hard Braking_CDF': 'Hard Braking',
-                                                    'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed', 'score': 'Score', 'rank': 'Position'},
-                                           inplace=False)
+                                           'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed', 'score': 'Score', 'rank': 'Position'}, inplace=False)
         # print(driverScores.head())
         driverScores['Score'] = driverScores['Score']*100
         driverScores['Position'] = driverScores['Position']
@@ -3666,7 +3660,7 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
             condition)
 
         driverScores1 = driverScores[['Driver ID',
-                                      'Score', 'Position', 'Safety Class']]
+                                     'Score', 'Position', 'Safety Class']]
         driverScores1 = driverScores1.sort_values(
             by='Score', ascending=False)
 
@@ -3695,7 +3689,7 @@ async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
 
 
 @app.get('/getAnnualScorePerQuarterPerDriver/{year}/{quarter}/{id}')
-async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: int, id: int):
+async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: int, id: int):    
     data = updated_data
     day = data[(data['eventyear'] == year) & (data['eventquarter'] == quarter)]
     if day.shape[0] < 600:
@@ -3704,18 +3698,18 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         day = data[(data['eventyear'] == year) & (
             data['eventquarter'] == quarter)]
         # print('A preview at the selected month', day.head())
-        # eventCount = len(day.event)
+        #eventCount = len(day.event)
         # print(
-        # f'The number of events made in the selected month is: {eventCount} events'
+            # f'The number of events made in the selected month is: {eventCount} events'
         # )
-        # driverCount = day.DriverID.nunique()
+        #driverCount = day.DriverID.nunique()
         # print(
-        # f"The number of drivers in this date range is: {driverCount}")
+            # f"The number of drivers in this date range is: {driverCount}")
         eventsPerDriver = day.groupby('DriverID', as_index=True).agg(
             {"event": "count"}).add_prefix('Number of ')
-        # averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
+        #averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
         # print(
-        # f'The average number of events made by the drivers is: {averageNoEvents}')
+            # f'The average number of events made by the drivers is: {averageNoEvents}')
 
         fig = px.bar(eventsPerDriver.reset_index(),  x='Number of event',
                      y='DriverID', color='Number of event', barmode='group', orientation='h')
@@ -3742,14 +3736,14 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         fig.write_html(
             './HTML Charts/Year and Quarter and ID/Histogram of Event Counts_.html')
 
-        # maxEventsPerDriver = eventsPerDriver['Number of event'].max()
-        # DriverID = eventsPerDriver['Number of event'].idxmax()
+        #maxEventsPerDriver = eventsPerDriver['Number of event'].max()
+        #DriverID = eventsPerDriver['Number of event'].idxmax()
         # print(
-        # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
-        # minEventsPerdriver = eventsPerDriver['Number of event'].min()
-        # DriverID = eventsPerDriver['Number of event'].idxmin()
+            # f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
+        #minEventsPerdriver = eventsPerDriver['Number of event'].min()
+        #DriverID = eventsPerDriver['Number of event'].idxmin()
         # print(
-        # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
+            # f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
         # Event Type
         dfReasonHist = day.groupby(['event'])[['event']].agg('count').add_prefix(
             'Number of ').reset_index().sort_values('Number of event', ascending=True)
@@ -3767,11 +3761,11 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
 
         # Handling Behavioral and Non-behavioral Events
         # non-behavioral events
-        # non_behavioral_events = [event for event in day.event if event not in [
+        #non_behavioral_events = [event for event in day.event if event not in [
         #    'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
-        # newCount = len(day[day['event'].isin(non_behavioral_events)])
+        #newCount = len(day[day['event'].isin(non_behavioral_events)])
         # print("Number of events before removing non-behavioral events is: {}.\nAfter removing non-behavioral events, we have: {} events.\nThis led to a reduction in the data size by: {:0.2f}%, leaving: {:0.2f}% of the entire data size.\nCurrent number of events is: {}".format(
-        # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
+            # len(day), newCount, ((len(day) - newCount)/len(day))*100, (100-(((len(day) - newCount)/len(day))*100)), newCount))
         # Specifying behavioral events
         behavioral_events = [event for event in day.event if event in [
             'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
@@ -3780,14 +3774,14 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         def prepData(day, minRecordsPerSubscriber=0):
             day.reset_index(inplace=True)
             # print(
-            # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
+                # f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
             # Remove NAs
-            # df = day.dropna()
+            #df = day.dropna()
             # print(f"Removing NAs, we are left with: {len(df)} trips")
             # Filter out unwanted events
             df4 = day[day['event'].isin(behavioral_events)]
             # print(
-            # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
+                # f"Keeping only events that are relevant for modeling, we are left with: {len(df4)} trips")
             # Filter out users with too few samples
             eventCountPerdriver = df4.groupby(
                 'DriverID')['DriverID'].agg('count')
@@ -3796,9 +3790,9 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
             driversWithManyRecords.keys()
             df5 = df4[df4['DriverID'].isin(driversWithManyRecords.keys())]
             # print(
-            # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
+                # f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
             # print("*** Done. ***")
-            return (df5)
+            return(df5)
         df6 = prepData(day)
         relevantEventsPerSubscriber = df6.groupby('DriverID').agg(
             {"event": "count"}).sort_values(by='event', ascending=False)
@@ -3880,8 +3874,8 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
                 'count').add_prefix('Number of ').reset_index()
             # Pivot events into columns
             # Pivot the table by setting the drivers' name as the index column, while the respective events takes on a column each. Finally, fill missing observations with zeros(0s)
-            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=['event'],
-                                                     values='Number of event').add_prefix('F_').fillna(0).reset_index()
+            dfEventMatrix = dfEventAggByDriver.pivot(index='DriverID', columns=[
+                                                     'event'], values='Number of event').add_prefix('F_').fillna(0).reset_index()
             # Merge the created pivot table with the earlier created dataframe for distance traveled per driver.
             dfEventMatrix = dfEventMatrix.merge(
                 distancePerdriver, how='inner', on='DriverID')
@@ -3971,7 +3965,7 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
                 return x
             valueGreaterThanZero = np.where(x <= 0, 0, x)
             positives = x[valueGreaterThanZero == 1]
-            if (len(positives) > 0):
+            if(len(positives) > 0):
                 xt[valueGreaterThanZero == 1], _ = st.boxcox(positives+1)
             if min_max_transform:
                 xt = (xt - np.min(xt)) / (np.max(xt)-np.min(xt))
@@ -4007,11 +4001,11 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
             inliers = np.where(xt <= xMean + stdFactor*xStd)[0]
             if len(outliers) > 0:
                 # print("found outlier with factor: " +
-                # str(stdFactor)+" : "+str(outliers))
+                      # str(stdFactor)+" : "+str(outliers))
                 xinline = x[inliers]
                 maxInRange = np.max(xinline)
                 # print("replacing outliers {} with max={}".format(
-                # outliers, maxInRange))
+                    # outliers, maxInRange))
                 vals = x.copy()
                 vals[outliers] = maxInRange
                 x = pd.Series(vals)
@@ -4044,9 +4038,9 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         # print(corr)
 
         # Plot the heatmap of the correlation matrix
-        # print(f"""
-        # Correlation Heatmap
-        # """)
+       # print(f"""
+                      # Correlation Heatmap
+                       # """)
         fig = px.imshow(corr, color_continuous_scale='hot',
                         title='Correlation Heatmap', width=600, height=500, aspect='equal')
         # fig.show()
@@ -4059,8 +4053,8 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         maxPerFeature = cleanFeatures.max()
         # print("Min and Max values per column before normalization")
         # for col in range(0, len(cleanFeatures.columns)):
-        # print(
-        # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
+            # print(
+                # f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
         normalizedFeatures = (cleanFeatures-minPerFeature) / \
             (maxPerFeature-minPerFeature)
         normalizedFeatures = normalizedFeatures.replace(
@@ -4079,27 +4073,27 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         # print(transFeaturesScaled.head())
         # print("Mean and STD before standardization")
         # for col in range(0, len(transFeatures.columns)):
-        # print(
-        # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
+            # print(
+                # f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
         # Anomaly Detection:
         # LOF - Local Outlier Filter
-        # X = transFeaturesScaled.values
-        # X = np.nan_to_num(X)
-        # clf = LocalOutlierFactor(n_neighbors=5)
-        # isOutlier = clf.fit_predict(X)
+        #X = transFeaturesScaled.values
+        #X = np.nan_to_num(X)
+        #clf = LocalOutlierFactor(n_neighbors=5)
+        #isOutlier = clf.fit_predict(X)
 #
-        # plt.title("Local Outlier Factor (LOF)", fontsize=20)
-        # a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
+        #plt.title("Local Outlier Factor (LOF)", fontsize=20)
+        #a = plt.scatter(X[isOutlier == 1, 0], X[isOutlier == 1, 1], c='white',
         #                edgecolor='k', s=40)
-        # b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
+        #b = plt.scatter(X[isOutlier == -1, 0], X[isOutlier == -1, 1], c='red',
         #                edgecolor='k', s=40)
-        # fig = plt.gcf()
-        # fig.set_size_inches(15, 10)
-        # plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
-        # plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
-        # plt.xlim((-0.01, 1.01))
-        # plt.ylim((-0.01, 1.01))
-        # plt.legend([a, b],
+        #fig = plt.gcf()
+        #fig.set_size_inches(15, 10)
+        #plt.xlabel(normalizedFeatures.columns[0], fontsize=15)
+        #plt.ylabel(normalizedFeatures.columns[1], fontsize=15)
+        #plt.xlim((-0.01, 1.01))
+        #plt.ylim((-0.01, 1.01))
+        #plt.legend([a, b],
         #           ["normal observations",
         #            "abnormal observations"],
         #           loc="upper right", prop={'size': 15}, frameon=True)
@@ -4109,18 +4103,18 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         # Multivariate analysis
         # Dimensionality reduction
         # PCA
-        # pca = PCA(n_components=4)
-        # principalComponents = pca.fit_transform(normalizedFeatures)
-        # column_names = ['principal component {}'.format(
+        #pca = PCA(n_components=4)
+        #principalComponents = pca.fit_transform(normalizedFeatures)
+        #column_names = ['principal component {}'.format(
         #    i) for i in range(normalizedFeatures.shape[1])]
         # plt.bar(x=column_names, height=pca.explained_variance_ratio_)
         # plt.title("Percentage of explained variance")
         # fig.show()
         # print("Principal components explained variance ratio: {}.".format(
-        # pca.explained_variance_ratio_))
-        # principalDf = pd.DataFrame(
+            # pca.explained_variance_ratio_))
+        #principalDf = pd.DataFrame(
         #    data=principalComponents, columns=column_names)
-        # df = normalizedFeatures
+        #df = normalizedFeatures
         # fig = plt.gcf()
         # fig.set_size_inches(15, 10)
         # Show correlation matrix of the original features and the first principal component
@@ -4132,7 +4126,7 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         # sns.pairplot(pcAndOriginal, y_vars=['principal component 0'],
         #             x_vars=['Hard Acceleration', 'Hard Braking', 'Hard Cornering', 'Overspeed'])
         # Extract statistics from the fitted distributions
-        # normalizedFeatures.head()
+        #normalizedFeatures.head()
 
         # Fit exponential distribution
         def fit_distribution_params(series):
@@ -4144,7 +4138,7 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
             xPositive = xPositive.fillna(0)
             # xPositive = xPositive.replace
             probs = np.zeros(len(series))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 params = st.expon.fit(xPositive)
                 arg = params[:-2]
                 loc = params[-2]
@@ -4156,7 +4150,7 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
             # print("Calculating scores for feature: " + x.name)
             xPositive = x[x > 0]
             probs = np.zeros(len(x))
-            if (len(xPositive) > 0):
+            if(len(xPositive) > 0):
                 arg = fittedParams[x.name]['arg']
                 loc = fittedParams[x.name]['loc']
                 scale = fittedParams[x.name]['scale']
@@ -4181,10 +4175,10 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         # Cumulative distribution/density function
         perFeatureScores = normalizedFeatures.apply(calculate_score_for_series, args=(
             fittedParams, False), axis=0).add_suffix("_CDF")
-        # perFeatureScores.head()
-        # DIST = st.expon
+        #perFeatureScores.head()
+        #DIST = st.expon
 
-        # def create_pdf(dist, params, size=10000):
+        #def create_pdf(dist, params, size=10000):
         #    # Separate parts of parameters
         #    arg = params[:-2]
         #    loc = params[-2]
@@ -4197,7 +4191,7 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         #    y = dist.pdf(x, loc=loc, scale=scale, *arg)
         #    pdf = pd.Series(y, x)
         #    return pdf
-
+        
         # fit exponential distribution
         # fig, axs = plt.subplots(1, 4, figsize=(
         # 15, 6), facecolor='w', edgecolor='k')
@@ -4246,8 +4240,7 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         driverScores = calculate_joint_score(perFeatureScores)
         driverScores = driverScores.reset_index()
         driverScores = driverScores.rename(columns={'DriverID': 'Driver ID', 'Hard Acceleration_CDF': 'Hard Acceleration', 'Hard Braking_CDF': 'Hard Braking',
-                                                    'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed', 'score': 'Score', 'rank': 'Position'},
-                                           inplace=False)
+                                           'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed', 'score': 'Score', 'rank': 'Position'}, inplace=False)
         # print(driverScores.head())
         driverScores['Score'] = driverScores['Score']*100
         driverScores['Position'] = driverScores['Position']
@@ -4271,7 +4264,7 @@ async def get_driver_score_per_driver_per_year_per_quarter(year: int, quarter: i
         if id in driverScores['Driver ID'].values:
             driverScores1 = driverScores[driverScores['Driver ID'] == id]
             driverScores1 = driverScores1[[
-                'Driver ID', 'Score', 'Position', 'Safety Class']]
+                'Driver ID' ,'Score', 'Position', 'Safety Class']]
             print("Score obtained per driver")
             print(driverScores1)
             result = driverScores1.to_json(orient="records")
