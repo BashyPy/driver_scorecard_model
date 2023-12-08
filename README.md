@@ -4,4 +4,4 @@
 
 [![wakatime](https://wakatime.com/badge/user/e47dea41-8692-44e5-bd23-27b3544ed664/project/018c35e8-dbe6-4a9a-aa5d-b2786dcc654e.svg)](https://wakatime.com/badge/user/e47dea41-8692-44e5-bd23-27b3544ed664/project/018c35e8-dbe6-4a9a-aa5d-b2786dcc654e)
 
-[![Docker Image CI](https://github.com/bashypy/driver_scorecard_model/actions/workflows/docker-image.yml/badge.svg)](https://github.com/bashypy/driver_scorecard_model/actions/workflows/docker-image.yml)
+[![Docker Image CI](https://github.com/bashypy/driver_scorecard_model/actions/workflows/build_cicd.yml/badge.svg)](https://github.com/bashypy/driver_scorecard_model/actions/workflows/build_cicd.yml)
