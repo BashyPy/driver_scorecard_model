@@ -6,11 +6,16 @@ ENV PYTHONDONTWRITEBYTECODE 1
 # Turns off buffering for easier container logging
 ENV PYTHONUNBUFFERED 1
 
-COPY . /app
+COPY requirements.txt /app/requirements.txt
 
 WORKDIR /app
+
 RUN pip install -r requirements.txt
 
-EXPOSE 8000
+EXPOSE 8080
 
-CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]
+COPY . /app
+
+ENTRYPOINT [ "python" ]
+
+CMD ["main.py"]
