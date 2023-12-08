@@ -147,3 +147,4 @@ csv files/
 logs/
 *.pem
 blackbox.py
+hadolint

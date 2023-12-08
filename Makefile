@@ -13,8 +13,8 @@ setup:
 install:
 	# This should be run from inside a virtualenv
 	pip3 install --no-cache-dir -r requirements.txt
-	wget -O ./hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.1-beta/hadolint-Darwin-x86_64 &&\
-		chmod +x ./hadolint
+	#wget -O ./hadolint https://github.com/hadolint/hadolint/releases/download/v2.12.1-beta/hadolint-Darwin-x86_64 &&\
+	#	chmod +x ./hadolint
 
 test:
 	# Additional, optional, tests could go here
