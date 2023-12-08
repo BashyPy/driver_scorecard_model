@@ -1,0 +1,7 @@
+venv/
+logs/
+.history/
+.vscode/
+csv files/
+HTML Charts/
+.mypy_cache/
