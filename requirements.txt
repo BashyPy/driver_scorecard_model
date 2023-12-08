@@ -22,3 +22,4 @@ python-dotenv
 passlib[bcrypt]
 python-multipart
 pylint
+types-requests
