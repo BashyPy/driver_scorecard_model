@@ -277,7 +277,7 @@ elif choose == 'App':
             st.write(f"""
                      ## A  preview of the fetched data
                      """)
-            st.write(updated_data.drop(['Company ID', 'Company Name', 'Email', 'positionid', 'timestamp'], axis=1).head())
+            st.write(updated_data_.drop(['Company ID', 'Company Name', 'Email', 'positionid', 'timestamp'], axis=1).head())
 
             # st.download_button(
             #   label="Download data as CSV",
