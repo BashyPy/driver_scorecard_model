@@ -32,6 +32,13 @@ jobs:
       id-token: write
 
     steps:
+      # Add Code Coverage step
+      - name: Code Coverage
+        uses: codecov/codecov-action@v3
+        env:
+          CODECOV_TOKEN: ${{ secrets.CODECOV_TOKEN }}
+
+      # Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v3
 
