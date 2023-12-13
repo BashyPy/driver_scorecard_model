@@ -140,7 +140,7 @@ elif choose == 'App':
             else:
                 # Use environment variables
                 host = os.getenv('host')
-                user = os.getenv('username')
+                user = os.getenv('user')
                 password = os.getenv('password')
                 db = os.getenv('database')
                 table1 = os.getenv('table1')
