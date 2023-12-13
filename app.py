@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 """
 Created on Thu Jul 21 18:07:08 2022
-Last Update on Sun Oct 30 18:53
+Last Update on Wed Dec 13 16:35 2023
 
 
 @author: muhammad
@@ -10,12 +10,9 @@ Last Update on Sun Oct 30 18:53
 
 
 import warnings
-from sklearn.decomposition import PCA
-from sklearn.neighbors import LocalOutlierFactor
 import plotly.express as px
 from streamlit_option_menu import option_menu
 import streamlit as st
-import pymysql
 from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -25,7 +22,6 @@ import scipy.stats as sc
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import rankdata
-import os
 
 plt.rcParams["figure.figsize"] = (20, 5)
 
@@ -59,18 +55,19 @@ with st.sidebar:
                                               "text-align": "left",
                                               "margin": "0px",
                                               "--hover-color": "#ADD8E6"},
-                                 "nav-link-selected": {"background-color": "#00008B"},
+                                 "nav-link-selected": {
+                                     "background-color": "#00008B"},
                                  })
 
 if choose == "Navigation Guide":
     """ __Navigation Guide__"""
     st.markdown(""" <style> .font {
-			font-size:35px ; font-family: 'Cooper Black'; color: #FF9633;}
-			</style> """, unsafe_allow_html=True)
+            font-size:35px ; font-family: 'Cooper Black'; color: #FF9633;}
+            </style> """, unsafe_allow_html=True)
     st.markdown('<p class="font">Guide to using this app</p>',
                 unsafe_allow_html=True)
     st.write(
-        f"""
+        """
         ## Please make use of the sidebar to navigate through this app.
         """)
 
@@ -78,43 +75,44 @@ elif choose == "About":
     col1, col2 = st.columns([0.8, 0.2])
     with col1:               # To display the header text using css style
         st.markdown(""" <style> .font {
-		font-size:35px ; font-family: 'Cooper Black'; color: #FF9633;}
-		</style> """, unsafe_allow_html=True)
+            font-size:35px ; font-family: 'Cooper Black'; color: #FF9633;}
+            </style> """, unsafe_allow_html=True)
         st.markdown('<p class="font">About the App</p>',
                     unsafe_allow_html=True)
     # with col2:               # To display brand log
     #    st.image(logo, width=130, caption="Twitter Logo")
 
-    st.write(f"""
+    st.markdown("""
 
-        # WELCOME TO THE DRIVER SCORECARD SYSTEM POWERED BY TSARON TECHNOLOGIES LIMITED
+        <t> <b> WELCOME TO THE DRIVER SCORECARD SYSTEM DEMO APPLICATION </b> </t>
 
-        ## The Driver Scorecard System is an Artificial Intelligence (AI) powered system that scores drivers based on their driving behavior while in motion.
+        <The> The Driver Scorecard System is an Artificial Intelligence (AI)
+        powered system that scores drivers based on their driving behavior
+        while in motion. The system intelligently score drivers by calculating the distance
+        traveled by respective drivers (mapped by DriverID) within a specified
+        date range, calculating the number of time the driver reported
+        specific events such as hard acceleration, et al. </p>
 
-        ## The system intelligently score drivers by calculating the distance traveled by respective drivers (mapped by DriverID) within a specified date range, \n calculating the number of time the driver reported specific events such as hard acceleration, et al.
+        <The> The system goes ahead to perform advanced mathematical operations
+        and scores the drivers. The system as well ranks each driver against other drivers. </p>
 
-        ## The system goes ahead to perform advanced mathematical operations and scores the drivers.
-
-        ## The system as well ranks each driver against other drivers.
-
-        """)
+        """, unsafe_allow_html=True)
 
 elif choose == 'App':
 
     # Add a description of the app
     st.markdown(""" <style> .font {
-	font-size:25px ; font-family: 'Cooper Black'; color: #FF9633;}
-	</style> """, unsafe_allow_html=True)
+    font-size:25px ; font-family: 'Cooper Black'; color: #FF9633;}
+    </style> """, unsafe_allow_html=True)
     st.markdown(
         '<p class="font">A Web App for Scoring Drivers based on their Driving Behavior</p>',
         unsafe_allow_html=True)  # use st.markdown() with CSS style to create a nice-formatted header/tex
 
     option = st.selectbox(
         'What task do you want to perform?',
-        ('Fetch Updated Data',
-         'Obtain Driver Score by Event Month'
-         ),
-        index=0)
+        ('Fetch Updated Data', 'Obtain Driver Score by Event Month'),
+        index=0
+    )
 
     st.write('Your selected option is: ', option)
 
@@ -132,7 +130,8 @@ elif choose == 'App':
             table3 = st.secrets.db_credentials.table3
             table4 = st.secrets.db_credentials.table4
 
-            engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{db}')
+            engine = create_engine(
+                f'mysql+pymysql://{user}:{password}@{host}/{db}')
 
             try:
                 query = pd.read_sql_query(
@@ -157,11 +156,13 @@ elif choose == 'App':
                     engine
                 )
 
-                data = pd.DataFrame(query, columns=['id', 'type', 'eventtime', 'deviceid', 'positionid',
-                                                    'geofenceid', 'attributes', 'maintenanceid', 'latitude',
-                                                    'longitude', 'altitude', 'speed', 'course', 'accuracy',
-                                                                'network', 'Company ID', 'Company Name', 'Email'])
-
+                data = pd.DataFrame(
+                    query, columns=['id', 'type', 'eventtime', 'deviceid',
+                                    'positionid', 'geofenceid', 'attributes',
+                                    'maintenanceid', 'latitude', 'longitude',
+                                    'altitude', 'speed', 'course', 'accuracy',
+                                    'network', 'Company ID', 'Company Name',
+                                    'Email'])
 
                 data['timestamp'] = pd.to_datetime(data['eventtime'])
                 data['eventdate'] = data['timestamp'].dt.date
@@ -180,70 +181,88 @@ elif choose == 'App':
                 for i in data['attributes']:
                     try:
                         data_splitted.append(i.split(":")[1])
-                    except:
+                    except Exception as e:
+                        st.warn(f"Error: {e}")
                         data_splitted.append('')
 
                 data['event'] = data_splitted
-                data['event'] = data['event'].apply(lambda x: x.replace('"', ''))
-                data['event'] = data['event'].apply(lambda x: x.replace("}", ''))
+                data['event'] = data['event'].apply(
+                    lambda x: x.replace('"', ''))
+                data['event'] = data['event'].apply(
+                    lambda x: x.replace("}", ''))
                 data['DriverID'] = data['deviceid']
 
                 def part_of_day(x):
+                    """
+                    Returns the part of the day based on the given hour.
+
+                    Args:
+                        x (int): The hour of the day.
+
+                    Returns:
+                        str: The part of the day corresponding to the given hour.
+                    """
+
                     if (x > 4) and (x <= 8):
                         return 'Early Morning'
                     elif (x > 8) and (x <= 12):
                         return 'Morning'
                     elif (x > 12) and (x <= 16):
-                        return'Noon'
+                        return 'Noon'
                     elif (x > 16) and (x <= 20):
                         return 'Eve'
                     elif (x > 20) and (x <= 24):
-                        return'Night'
+                        return 'Night'
                     elif (x <= 4):
-                        return'Late Night'
+                        return 'Late Night'
 
                 data['eventpartofday'] = data['eventhour'].apply(
-                   part_of_day)
+                    part_of_day)
 
                 def test():
                     global updated_data
 
-                    updated_data = data[['DriverID', 'Company ID', 'Company Name', 'Email', 'positionid',
-                                        'timestamp', 'event', 'eventdate', 'eventtime', 'eventday',
-                                            'eventyear', 'eventmonth', 'eventweek', 'eventdayofweek', 'eventdayofmonth',
-                                            'eventdayofyear', 'eventquarter', 'eventhour', 'eventpartofday', 'latitude',
-                                            'longitude', 'altitude', 'speed', 'course', 'accuracy', ]]
+                    updated_data = data[
+                        ['DriverID', 'Company ID', 'Company Name', 'Email',
+                         'positionid', 'timestamp', 'event', 'eventdate',
+                         'eventtime', 'eventday', 'eventyear', 'eventmonth',
+                         'eventweek', 'eventdayofweek', 'eventdayofmonth',
+                         'eventdayofyear', 'eventquarter', 'eventhour',
+                         'eventpartofday', 'latitude', 'longitude', 'altitude',
+                         'speed', 'course', 'accuracy', ]]
 
                 test()
 
                 updated_data.to_csv('./csv files/data.csv', index=False,
-                                   header=True, encoding='utf-8')
+                                    header=True, encoding='utf-8')
                 data.to_csv('./csv files/main_data.csv', index=False,
-                           header=True, encoding='utf-8')
-                
-            except:
-                st.error("Error: unable to convert the data")
+                            header=True, encoding='utf-8')
 
+            except Exception as e:
+                st.warn(f"Error: {e}")
 
             # Create declarative base meta instance
             Base = declarative_base()
             # Create session local class for session maker
             SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
-            
-            @st.cache
+            @st.cache_data
             def convert_df(updated_data):
                 """
-                 # IMPORTANT: Cache the conversion to prevent computation on every rerun
+                 # IMPORTANT: Cache the conversion to prevent computation on
+                 # every rerun
                 """
                 return updated_data.to_csv().encode('utf-8')
-            
+
             csv = convert_df(updated_data)
 
-            st.write(f"""
+            st.write("""
                      ## A  preview of the fetched data
                      """)
-            st.write(updated_data.drop(['Company ID', 'Company Name', 'Email', 'positionid', 'timestamp'], axis=1).head())
+            st.write(
+                updated_data.drop(
+                    ['Company ID', 'Company Name', 'Email', 'positionid',
+                     'timestamp', 'course'], axis=1).head())
 
             # st.download_button(
             #   label="Download data as CSV",
@@ -255,7 +274,7 @@ elif choose == 'App':
     elif option == "Obtain Driver Score by Event Month":
         # Score Card System
 
-        #st.subheader('Scorecard System')
+        # st.subheader('Scorecard System')
         # option = st.selectbox(
         #    'Which option will you prefer?',
         #    ('Obtain Score by Event Date',
@@ -264,23 +283,25 @@ elif choose == 'App':
 
         # Add a text input field to allow users to enter a search term
         updated_data = pd.read_csv('./csv files/data.csv')
-        
-        #st.subheader('Enter a date range to obtain the score')
-        #today = date.today()
+
+        # st.subheader('Enter a date range to obtain the score')
+        # today = date.today()
         # start_date = st.date_input(
         #    'Enter the start date of the events you want to score drivers on')
-        #start_date = str(start_date)
+        # start_date = str(start_date)
         # end_date = st.date_input(
         #    'Enter the end date of the events you want to score drivers on')
-        #end_date = str(end_date)
+        # end_date = str(end_date)
 
-        #month = st.text_input('Enter the month of interest: ')
+        # month = st.text_input('Enter the month of interest: ')
         # st.write(f"""
         #         ### Please select a month from June upwards
         #         """)
-        option = st.selectbox('Which month of year are you interested in?',
-                              ['January', 'February', 'March', 'April', 'May', 'June', 'July',
-                               'August', 'September', 'October', 'November', 'December'], index=0)
+        option = st.selectbox(
+            'Which month of year are you interested in?',
+            ['January', 'February', 'March', 'April', 'May', 'June', 'July',
+             'August', 'September', 'October', 'November', 'December'],
+            index=0)
         st.write('You selected: ', option)
         if option == 'January':
             day = updated_data[updated_data['eventmonth'] == option]
@@ -314,31 +335,42 @@ elif choose == 'App':
         else:
             day = updated_data[updated_data['eventmonth'] == option]
 
-            #st.write('A preview at the selected month', day.drop(['Company ID', 'Company Name', 'Email', 'positionid', 'timestamp'], axis=1).head())
-            #eventCount = len(day.event)
-            #st.write(
-            #    f'The number of events made in the selected month is: {eventCount} events'
-            #)
-            #driverCount = day.DriverID.nunique()
-            #st.write(
+            # st.write(
+            # 'A preview at the selected month', day.drop(
+            # ['Company ID', 'Company Name', 'Email', 'positionid', 'timestamp'],
+            # axis=1).head())
+            # eventCount = len(day.event)
+            # st.write(
+            #    f'''
+            # The number of events made in the selected month is:
+            # {eventCount} events'''
+            # )
+            # driverCount = day.DriverID.nunique()
+            # st.write(
             #    f"The number of drivers in this date range is: {driverCount}")
-            #eventsPerDriver = day.groupby('DriverID', as_index=True).agg(
+            # eventsPerDriver = day.groupby('DriverID', as_index=True).agg(
             #    {"event": "count"}).add_prefix('Number of ')
-            #averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
-            #st.write(
-            #    f'The average number of events made by the drivers is: {averageNoEvents}')
+            # averageNoEvents = np.mean(eventsPerDriver).values[0].round(2)
+            # st.write(
+            #    f'''
+            # The average number of events made by the drivers is:
+            # {averageNoEvents}''')
 
-            #maxEventsPerDriver = eventsPerDriver['Number of event'].max()
-            #DriverID = eventsPerDriver['Number of event'].idxmax()
-            #st.write(
-            #    f'The driver with the most events is: driver {DriverID}, and the number of events made is: {maxEventsPerDriver}')
-            #minEventsPerdriver = eventsPerDriver['Number of event'].min()
-            #DriverID = eventsPerDriver['Number of event'].idxmin()
-            #st.write(
-            #    f'The driver with the least events is: driver {DriverID}, and the number of events made is: {minEventsPerdriver}')
+            # maxEventsPerDriver = eventsPerDriver['Number of event'].max()
+            # DriverID = eventsPerDriver['Number of event'].idxmax()
+            # st.write(
+            #    f'The driver with the most events is: driver {DriverID}, and
+            # the number of events made is: {maxEventsPerDriver}')
+            # minEventsPerdriver = eventsPerDriver['Number of event'].min()
+            # DriverID = eventsPerDriver['Number of event'].idxmin()
+            # st.write(
+            #    f'The driver with the least events is: driver {DriverID}, and
+            # the number of events made is: {minEventsPerdriver}')
             # Event Type
-            dfReasonHist = day.groupby(['event'])[['event']].agg('count').add_prefix(
-                'Number of ').reset_index().sort_values('Number of event', ascending=True)
+            dfReasonHist = day.groupby(
+                ['event'])[['event']].agg('count').add_prefix(
+                'Number of ').reset_index().sort_values(
+                    'Number of event', ascending=True)
             fig = px.bar(dfReasonHist, x='Number of event',
                          y='event', orientation='h', color='event')
             fig.update_layout(
@@ -346,14 +378,23 @@ elif choose == 'App':
                 title='Bar Plot of Event Distribution',
                 template="plotly_white"
             )
-            #st.plotly_chart(fig, use_container_width=True)
+            # st.plotly_chart(fig, use_container_width=True)
             # Handling Behavioral and Non-behavioral Events
             # non-behavioral events
-            non_behavioral_events = [event for event in day.event if event not in [
-                'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
+            non_behavioral_events = [
+                event for event in day.event if event not in [
+                 'hardAcceleration', 'hardBraking',
+                 'hardCornering', 'overspeed']]
             newCount = len(day[day['event'].isin(non_behavioral_events)])
-            # st.write("Number of events before removing non-behavioral events is: {}.\nAfter removing non-behavioral events, we have: {} events.\nThis led to a reduction in the data size by: {:0.2f}%, leaving: {:0.2f}% of the entire data size.\nCurrent number of events is: {}".format(
-            #    len(updated_data), newCount, ((len(updated_data) - newCount)/len(updated_data))*100, (100-(((len(updated_data) - newCount)/len(updated_data))*100)), newCount))
+            # st.write(
+            # """Number of events before removing non-behavioral events is: {}.
+            # After removing non-behavioral events, we have: {} events.
+            # This led to a reduction in the data size by: {:0.2f}%, leaving:
+            # {:0.2f}% of the entire data size.\nCurrent number of events is:
+            # {}""".format(len(updated_data), newCount, (
+            # (len(updated_data) - newCount)/len(updated_data))*100, (100-(((
+            # len(updated_data) - newCount)/len(updated_data))*100)), newCount)
+            # )
             # Specifying behavioral events
             behavioral_events = [event for event in day.event if event in [
                 'hardAcceleration', 'hardBraking', 'hardCornering', 'overspeed']]
@@ -364,8 +405,8 @@ elif choose == 'App':
                 # st.write(
                 #    f"*** Starting data prep, we have: {len(day)} trips in the dataset ***")
                 # Remove NAs
-                df = day.dropna()
-                #st.write(f"Removing NAs, we are left with: {len(df)} trips")
+                #df = day.dropna()
+                # st.write(f"Removing NAs, we are left with: {len(df)} trips")
                 # Filter out unwanted events
                 df4 = day[day['event'].isin(behavioral_events)]
                 # st.write(
@@ -373,23 +414,22 @@ elif choose == 'App':
                 # Filter out users with too few samples
                 eventCountPerdriver = df4.groupby(
                     'DriverID')['DriverID'].agg('count')
-                driversWithManyRecords = eventCountPerdriver[eventCountPerdriver >
-                                                             minRecordsPerSubscriber]
+                driversWithManyRecords = eventCountPerdriver[
+                    eventCountPerdriver > minRecordsPerSubscriber]
                 driversWithManyRecords.keys()
-                df5 = df4[df4['DriverID'].isin(driversWithManyRecords.keys())]
-                # st.write(
-                #    f"Filtering users with too few samples,  we are left with: {len(df5)} trips")
-                #st.write("*** Done. ***")
-                return(df5)
+                return df4[df4['DriverID'].isin(driversWithManyRecords.keys())]
             df6 = prepData(day)
             relevantEventsPerSubscriber = df6.groupby('DriverID').agg(
                 {"event": "count"}).sort_values(by='event', ascending=False)
 
             # Distribution of Events
-            dfReasonHist = df6.groupby('event')[['event']].agg('count').add_prefix(
-                'Number of ').reset_index().sort_values('Number of event', ascending=True)
-            fig = px.bar(dfReasonHist, x='Number of event',
-                         y='event', orientation='h', color='event')
+            dfReasonHist = df6.groupby(
+                'event')[['event']].agg(
+                    'count').add_prefix('Number of ').reset_index(
+                        ).sort_values('Number of event', ascending=True)
+            fig = px.bar(
+                dfReasonHist, x='Number of event',
+                y='event', orientation='h', color='event')
             fig.update_layout(
                 xaxis_title="Number of Events",
                 yaxis_title="Event",
@@ -401,66 +441,79 @@ elif choose == 'App':
             # Hard Acceleration Visual
 
             hard_acceleration = day[day['event'] == 'hardAcceleration']
-            ha = hard_acceleration[['DriverID', 'event']].groupby('DriverID').agg('count').add_prefix(
+            ha = hard_acceleration[
+                ['DriverID', 'event']].groupby('DriverID').agg(
+                    'count').add_prefix(
                 'Number of ')
             ha = ha.reset_index()
             ha = ha.sort_values(by='Number of event', ascending=False)
             # st.write(ha.head())
-            fig = px.bar(ha, x='DriverID', y='Number of event', color='Number of event',
-                         title='Distribution of Hard Acceleration per Driver')
+            fig = px.bar(
+                ha, x='DriverID', y='Number of event',
+                color='Number of event',
+                title='Distribution of Hard Acceleration per Driver')
 
             fig.update_layout(
                 template='plotly_white'
             )
-            #st.plotly_chart(fig, use_container_width=True)
+            # st.plotly_chart(fig, use_container_width=True)
 
             # Hard Braking Visual
 
             hard_braking = day[day['event'] == 'hardBraking']
-            hb = hard_braking[['DriverID', 'event']].groupby('DriverID').agg('count').add_prefix(
+            hb = hard_braking[
+                ['DriverID', 'event']].groupby('DriverID').agg(
+                    'count').add_prefix(
                 'Number of ')
             hb = hb.reset_index()
             hb = hb.sort_values(by='Number of event', ascending=False)
             # st.write(ha.head())
-            fig = px.bar(hb, x='DriverID', y='Number of event', color='Number of event',
-                         title='Distribution of Hard Braking per Driver')
+            fig = px.bar(
+                hb, x='DriverID', y='Number of event',
+                color='Number of event',
+                title='Distribution of Hard Braking per Driver')
 
             fig.update_layout(
                 template='plotly_white'
             )
-            #st.plotly_chart(fig, use_container_width=True)
+            # st.plotly_chart(fig, use_container_width=True)
 
             # Hard Cornering Visual
 
             hard_cornering = day[day['event'] == 'hardCornering']
-            hc = hard_cornering[['DriverID', 'event']].groupby('DriverID').agg('count').add_prefix(
-                'Number of ')
+            hc = hard_cornering[
+                ['DriverID', 'event']].groupby('DriverID').agg(
+                    'count').add_prefix('Number of ')
             hc = hc.reset_index()
             hc = hc.sort_values(by='Number of event', ascending=False)
             # st.write(ha.head())
-            fig = px.bar(hc, x='DriverID', y='Number of event', color='Number of event',
-                         title='Distribution of Hard Cornering per Driver')
+            fig = px.bar(
+                hc, x='DriverID',
+                y='Number of event', color='Number of event',
+                title='Distribution of Hard Cornering per Driver')
 
             fig.update_layout(
                 template='plotly_white'
             )
-            #st.plotly_chart(fig, use_container_width=True)
+            # st.plotly_chart(fig, use_container_width=True)
 
             # Overspeed Visual
 
             overspeed = day[day['event'] == 'overspeed']
-            ovs = overspeed[['DriverID', 'event']].groupby('DriverID').agg('count').add_prefix(
-                'Number of ')
+            ovs = overspeed[
+                ['DriverID', 'event']].groupby(
+                    'DriverID').agg('count').add_prefix('Number of ')
             ovs = ovs.reset_index()
             ovs = ovs.sort_values(by='Number of event', ascending=False)
             # st.write(ha.head())
-            fig = px.bar(ovs, x='DriverID', y='Number of event', color='Number of event',
+            fig = px.bar(ovs, x='DriverID', y='Number of event',
+                         color='Number of event',
                          title='Distribution of Overspeeding per Driver')
 
             fig.update_layout(
                 template='plotly_white'
             )
-            #st.plotly_chart(fig, use_container_width=True)
+            # st.plotly_chart(fig, use_container_width=True)
 
             # Calculate distance traveled in each trip using Haversine
 
@@ -469,26 +522,35 @@ elif choose == 'App':
                     np.radians, [lon1, lat1, lon2, lat2])
                 dlon = lon2 - lon1
                 dlat = lat2 - lat1
-                a = np.sin(dlat/2.0)**2 + np.cos(lat1) * \
-                    np.cos(lat2) * np.sin(dlon/2.0)**2
+                a = np.sin(
+                    dlat/2.0)**2 + np.cos(lat1) * np.cos(lat2) * np.sin(
+                        dlon/2.0)**2
                 c = 2 * np.arcsin(np.sqrt(a))
-                km = 6367 * c
-                return km
+                return 6367 * c
 
             def total_distance(oneDriver):
-                dist = haversine(oneDriver.longitude.shift(1), oneDriver.latitude.shift(1),
-                                 oneDriver.loc[1:, 'longitude'], oneDriver.loc[1:, 'latitude'])
+                dist = haversine(
+                    oneDriver.longitude.shift(1),
+                    oneDriver.latitude.shift(1),
+                    oneDriver.loc[1:, 'longitude'],
+                    oneDriver.loc[1:, 'latitude'])
                 return np.sum(dist)
             # Calculate the overall distance made by each driver
 
             def calculate_overall_distance_traveled(dfRaw):
-                dfDistancePerdriver = day.groupby('DriverID').apply(
-                    total_distance).reset_index(name='Distance')
-                return dfDistancePerdriver
+                return (
+                    day.groupby('DriverID')
+                    .apply(total_distance)
+                    .reset_index(name='Distance')
+                )
             distancePerdriver = calculate_overall_distance_traveled(df6)
             # st.write(distancePerdriver)
-            fig = px.bar(distancePerdriver.sort_values(by='Distance', ascending=True),
-                         x='DriverID', y='Distance', color='Distance', )
+            fig = px.bar(
+                distancePerdriver.sort_values(
+                    by='Distance', ascending=True),
+                x='DriverID',
+                y='Distance',
+                color='Distance', )
             fig.update_layout(
                 xaxis_title="Driver ID",
                 yaxis_title="Distance Traveled",
@@ -499,15 +561,22 @@ elif choose == 'App':
             )
             st.plotly_chart(fig, use_container_width=True)
             # Feature Engineering
-            # Transform the events data frame to a features data frame (column for each type of relevant event)
+            # Transform the events data frame to a features data frame
+            # (column for each type of relevant event)
 
             def create_feature_set(df6, distancePerdriver):
-                dfEventAggBydriver = df6.groupby(['DriverID', 'event'])[['event']].agg(
+                dfEventAggBydriver = df6.groupby(
+                    ['DriverID', 'event'])[['event']].agg(
                     'count').add_prefix('Number of ').reset_index()
                 # Pivot events into columns
-                # Pivot the table by setting the drivers' name as the index column, while the respective events takes on a column each. Finally, fill missing observations with zeros(0s)
-                dfEventMatrix = dfEventAggBydriver.pivot(index='DriverID', columns=[
-                                                         'event'], values='Number of event').add_prefix('F_').fillna(0).reset_index()
+                # Pivot the table by setting the drivers' name as the index
+                # column,while the respective events takes on a column each.
+                # Finally,fill missing observations with zeros(0s)
+                dfEventMatrix = dfEventAggBydriver.pivot(
+                    index='DriverID',
+                    columns=['event'],
+                    values='Number of event').add_prefix(
+                        'F_').fillna(0).reset_index()
                 # Merge the created pivot table with the earlier created dataframe for distance traveled by each driver.
                 dfEventMatrix = dfEventMatrix.merge(
                     distancePerdriver, how='inner', on='DriverID')
@@ -518,8 +587,7 @@ elif choose == 'App':
                 # Divide each of the features by the traveled.
                 dfEventMatrix[featureCols] = dfEventMatrix[featureCols].div(
                     dfEventMatrix['Distance'], axis=0)
-                dfFeatureSet = dfEventMatrix[featureCols]
-                return dfFeatureSet
+                return dfEventMatrix[featureCols]
             features = create_feature_set(df6, distancePerdriver)
             # Motion based events
             try:
@@ -543,16 +611,24 @@ elif choose == 'App':
                 else:
                     features['F_overspeed'] = pd.Series(
                         [0 for x in range(len(features.index))])
-                #features = [['F_hardAcceleration', 'F_hardBraking', 'F_hardCornering', 'F_overspeed']]
+                # features = [
+                    # ['F_hardAcceleration',
+                    # 'F_hardBraking',
+                    # 'F_hardCornering',
+                    # 'F_overspeed']
+                    # ]
                 features = features.fillna(0)
                 # st.write(features)
-            except:
-                st.write('None')
-            features = features.rename(columns={'F_hardAcceleration': "Hard Acceleration",
-                                                'F_hardBraking': "Hard Braking",
-                                       'F_hardCornering': "Hard Cornering",
-                                                'F_overspeed': 'Overspeed'}, inplace=False)
-            #st.write(features.head())
+            except Exception as e:
+                st.write(f"{e}")
+            features = features.rename(
+                columns={
+                    'F_hardAcceleration': "Hard Acceleration",
+                    'F_hardBraking': "Hard Braking",
+                    'F_hardCornering': "Hard Cornering",
+                    'F_overspeed': 'Overspeed'},
+                inplace=False)
+            # st.write(features.head())
 
             # Detecting and Handling Outliers
             # Log Transformation
@@ -560,11 +636,11 @@ elif choose == 'App':
             features_log = features.replace(
                 [np.inf, -np.inf], np.nan, inplace=False)
             features_log = features.fillna(0)
-            
+
             # Box-Cox Transformation
-            #st.write(f"""
-            #	### Applying Box-Cox transformation on the data
-            #	""")
+            # st.write(f"""
+            # ### Applying Box-Cox transformation on the data
+            # """)
 
             def transform_to_normal(x, min_max_transform=False):
                 xt = np.zeros(len(x))
@@ -573,7 +649,7 @@ elif choose == 'App':
                     return x
                 valueGreaterThanZero = np.where(x <= 0, 0, x)
                 positives = x[valueGreaterThanZero == 1]
-                if(len(positives) > 0):
+                if (len(positives) > 0):
                     xt[valueGreaterThanZero == 1], _ = st.boxcox(positives+1)
                 if min_max_transform:
                     xt = (xt - np.min(xt)) / (np.max(xt)-np.min(xt))
@@ -584,12 +660,12 @@ elif choose == 'App':
             transFeatures = transFeatures.replace(
                 [np.inf, -np.inf], np.nan, inplace=False)
             transFeatures = transFeatures.fillna(0)
-            #st.write(
+            # st.write(
             #    'A preview of the data upon the application of Box-Cox Transformation')
-            #st.write(transFeatures.head())
+            # st.write(transFeatures.head())
 
             # Standard Deviation Rule
-            #st.write(f'''
+            # st.write(f'''
             #         ### Checking for and replacement of outliers''')
 
             def replace_outliers_with_limit(x, stdFactor=2.5, normalize=False):
@@ -597,76 +673,82 @@ elif choose == 'App':
                 x = x.values
                 xt = np.zeros(len(x))
                 if np.count_nonzero(x) == 0:
-                    #st.write("only zero valued values found")
+                    # st.write("only zero valued values found")
                     return x
                 xt = transform_to_normal(x)
                 xMean, xStd = np.mean(xt), np.std(xt)
                 outliers = np.where(xt > xMean + stdFactor*xStd)[0]
                 inliers = np.where(xt <= xMean + stdFactor*xStd)[0]
                 if len(outliers) > 0:
-                    #st.write("found outlier with factor: "+str(stdFactor)+" : "+str(outliers))
+                    # st.write("found outlier with factor: "
+                    # +str(stdFactor)+" : "+str(outliers))
                     xinline = x[inliers]
                     maxInRange = np.max(xinline)
-                    #st.write("replacing outliers {} with max={}".format(outliers, maxInRange))
+                    # st.write(f"""
+                    # replacing outliers {outliers} with max={maxInRange}""")
                     vals = x.copy()
                     vals[outliers] = maxInRange
                     x = pd.Series(vals)
                 else:
-                    pass
-                    #st.write("No outliers found")
+                    st.write("No outliers found")
                 if normalize:
                     # Normalize to [0,1]
                     x = (x - np.min(x)) / (np.max(x)-np.min(x))
                 return x
-            #features_1 = features_1.reset_index()
+            # features_1 = features_1.reset_index()
             cleanFeatures = features.apply(
                 lambda x: (replace_outliers_with_limit(x)))
             cleanFeatures = cleanFeatures.replace(
                 [np.inf, -np.inf], np.nan, inplace=False)
             cleanFeatures = cleanFeatures.fillna(0)
-            #st.write(f"""
+            # st.write(f"""
             #         #### A preview of the cleaned data after handling outliers
             #         """)
-            #st.write(cleanFeatures.head())
+            # st.write(cleanFeatures.head())
 
             # Correlation between events
-            #st.write(f"""
+            # st.write(f"""
             #         ### Correlation between the events
             #         """)
-            #corr = cleanFeatures.corr()
-            #corr = corr.replace([np.inf, -np.inf], np.nan, inplace=False)
-            #corr = corr.fillna(0)
-            #st.write(corr)
+            # corr = cleanFeatures.corr()
+            # corr = corr.replace([np.inf, -np.inf], np.nan, inplace=False)
+            # corr = corr.fillna(0)
+            # st.write(corr)
 
             # Draw the heatmap of the correlation matrix
-            #st.write(f"""
+            # st.write(f"""
             #        ### Correlation Heatmap
             #         """)
-            #fig = px.imshow(corr, color_continuous_scale='hot',
-            #                title='Correlation Heatmap', width=600, height=500, aspect='equal')
-            #st.plotly_chart(fig, use_container_width=True)
+            # fig = px.imshow(corr, color_continuous_scale='hot',
+            #                title='Correlation Heatmap',
+            # width=600,
+            # height=500,
+            # aspect='equal')
+            # st.plotly_chart(fig, use_container_width=True)
             # Pre step: Normalize features
-            #st.write(f"""
+            # st.write(f"""
             #         ### Data normalization
             #         """)
             minPerFeature = cleanFeatures.min()
             maxPerFeature = cleanFeatures.max()
-            #st.write("Min and Max values per column before normalization")
+            # st.write("Min and Max values per column before normalization")
             # for col in range(0, len(cleanFeatures.columns)):
             #    st.write(
-            #        f"{cleanFeatures.columns[col]} range:[{minPerFeature[col]},{maxPerFeature[col]}]")
+            #        f"{cleanFeatures.columns[col]}
+            # range:[{minPerFeature[col]},
+            # {maxPerFeature[col]}]")
             normalizedFeatures = (cleanFeatures-minPerFeature) / \
                 (maxPerFeature-minPerFeature)
             normalizedFeatures = normalizedFeatures.replace(
                 [np.inf, -np.inf], np.nan, inplace=False)
             normalizedFeatures = normalizedFeatures.fillna(0)
-            #st.write(f"""
+            # st.write(f"""
             #         ### A preview of the normalized data
             #         """)
-            #st.write(normalizedFeatures.head())
+            # st.write(normalizedFeatures.head())
             #
             # Standardize features after box-cox as well.
-            #st.write(f"""
+            # st.write(f"""
             #         ### Standardizing the features after Box-Cox Transformation
             #         """)
             transFeaturesScaled = (
@@ -674,15 +756,17 @@ elif choose == 'App':
             transFeaturesScaled = transFeaturesScaled.replace(
                 [np.inf, -np.inf], np.nan, inplace=False)
             transFeaturesScaled = transFeaturesScaled.fillna(0)
-            #st.write(f"""
-            #	### A preview of the standardized data
-            #	""")
-            #st.write(transFeaturesScaled.head())
+            # st.write(f"""
+            # ### A preview of the standardized data
+            # """)
+            # st.write(transFeaturesScaled.head())
             # st.write("")
-            #st.write("Mean and STD before standardization")
+            # st.write("Mean and STD before standardization")
             # for col in range(0, len(transFeatures.columns)):
             #    st.write(
-            #        f"{transFeatures.columns[col]} range:[{transFeatures.mean()[col]},{transFeatures.std()[col]}]")
+            #        f"{transFeatures.columns[col]}
+            # range:[{transFeatures.mean()[col]},
+            # {transFeatures.std()[col]}]")
 
             # Fit exponential distribution
             def fit_distribution_params(series):
@@ -692,21 +776,21 @@ elif choose == 'App':
                 xPositive = xPositive.replace(
                     [np.inf, -np.inf], np.nan, inplace=False)
                 xPositive = xPositive.fillna(0)
-                #xPositive = xPositive.replace
+                # xPositive = xPositive.replace
                 probs = np.zeros(len(series))
-                if(len(xPositive) > 0):
+                if (len(xPositive) > 0):
                     params = sc.expon.fit(xPositive)
                     arg = params[:-2]
                     loc = params[-2]
                     scale = params[-1]
-                    #st.write('params = {}, {}, {}.'.format(arg, loc, scale))
+                    # st.write('params = {}, {}, {}.'.format(arg, loc, scale))
                     return arg, loc, scale
 
             def calculate_score_for_series(x, fittedParams, verbose=False):
-                #st.write("Calculating scores for feature: " + x.name)
+                # st.write("Calculating scores for feature: " + x.name)
                 xPositive = x[x > 0]
                 probs = np.zeros(len(x))
-                if(len(xPositive) > 0):
+                if (len(xPositive) > 0):
                     arg = fittedParams[x.name]['arg']
                     loc = fittedParams[x.name]['loc']
                     scale = fittedParams[x.name]['scale']
@@ -714,7 +798,9 @@ elif choose == 'App':
                         xPositive, loc=loc, scale=scale, *arg)
                     if verbose:
                         probs_df = pd.DataFrame(
-                            {'Event value': x.values.tolist(), 'Event probability': probs}, index=True)
+                            {'Event value': x.values.tolist(),
+                                'Event probability': probs},
+                            index=True)
                         probs_df = probs_df.sort_values(by='Event value')
                         # st.write(probs_df)
                 return probs
@@ -726,12 +812,14 @@ elif choose == 'App':
                 fittedParams[col]['arg'] = arg
                 fittedParams[col]['loc'] = loc
                 fittedParams[col]['scale'] = scale
-            #st.write('Fitted parameters:')
-            #st.write(json.dumps(fittedParams, indent=2))
+            # st.write('Fitted parameters:')
+            # st.write(json.dumps(fittedParams, indent=2))
             # Commulative distribution/density function
-            perFeatureScores = normalizedFeatures.apply(calculate_score_for_series, args=(
-                fittedParams, False), axis=0).add_suffix("_CDF")
-            #perFeatureScores.head()
+            perFeatureScores = normalizedFeatures.apply(
+                calculate_score_for_series, args=(
+                    fittedParams, False),
+                axis=0).add_suffix("_CDF")
+            # perFeatureScores.head()
             DIST = sc.expon
 
             def create_pdf(dist, params, size=10000):
@@ -739,15 +827,17 @@ elif choose == 'App':
                 arg = params[:-2]
                 loc = params[-2]
                 scale = params[-1]
-                start = dist.ppf(0.01, *arg, loc=loc,
-                                 scale=scale) if arg else dist.ppf(0.01, loc=loc, scale=scale)
-                end = dist.ppf(0.99999, *arg, loc=loc,
-                               scale=scale) if arg else dist.ppf(0.99999, loc=loc, scale=scale)
+                start = dist.ppf(
+                    0.01, *arg, loc=loc, scale=scale) if arg else dist.ppf(
+                        0.01, loc=loc, scale=scale)
+                end = dist.ppf(
+                    0.99999, *arg, loc=loc, scale=scale) if arg else dist.ppf(
+                        0.99999, loc=loc, scale=scale)
                 x = np.linspace(start, end, size)
                 y = dist.pdf(x, loc=loc, scale=scale, *arg)
                 pdf = pd.Series(y, x)
                 return pdf
-            
+
             # Calculate driver score
             def calculate_joint_score(perFeatureScores):
                 driverScores = perFeatureScores
@@ -756,14 +846,23 @@ elif choose == 'App':
                 driverScores['score'] = 1 - ((driverScores[featureCols].sum(
                     axis=1) / len(featureCols)))
                 driverScores = driverScores.sort_values('score')
-                driverScores['rank'] = len(
-                    driverScores['score']) - rankdata(driverScores['score']) + 1
+                driverScores['rank'] = (len(
+                    driverScores['score'])
+                 - rankdata(driverScores['score']) + 1)
                 return driverScores
 
             driverScores = calculate_joint_score(perFeatureScores)
             driverScores = driverScores.reset_index()
-            driverScores = driverScores.rename(columns={'DriverID': 'Driver ID', 'Hard Acceleration_CDF': 'Hard Acceleration', 'Hard Braking_CDF': 'Hard Braking',
-                                               'Hard Cornering_CDF': 'Hard Cornering', 'Overspeed_CDF': 'Overspeed', 'score': 'Driver Score', 'rank': 'Driver Rank'}, inplace=False)
+            driverScores = driverScores.rename(
+                columns={
+                    'DriverID': 'Driver ID',
+                    'Hard Acceleration_CDF': 'Hard Acceleration',
+                    'Hard Braking_CDF': 'Hard Braking',
+                    'Hard Cornering_CDF': 'Hard Cornering',
+                    'Overspeed_CDF': 'Overspeed',
+                    'score': 'Driver Score',
+                    'rank': 'Driver Rank'},
+                inplace=False)
             # st.write(driverScores.head())
             driverScores['Driver Score'] = driverScores['Driver Score']*100
             driverScores['Driver Rank'] = driverScores['Driver Rank']
@@ -776,9 +875,9 @@ elif choose == 'App':
             def condition(x):
                 if x < 25:
                     return "Perfectly Risky"
-                elif x >= 25 and x < 50:
+                elif x < 50:
                     return "Somewhat Risky"
-                elif x >= 50 and x < 75:
+                elif x < 75:
                     return 'Somewhat Safe'
                 else:
                     return 'Perfectly Safe'
@@ -790,14 +889,20 @@ elif choose == 'App':
             driverScores1 = driverScores1.sort_values(
                 by='Driver Score', ascending=False)
 
-            st.write(f"""
+            st.write("""
             ### Score obtained by each driver
             """)
             st.write(driverScores1)
 
-            fig = px.bar(driverScores, y='Driver Score', x='Driver ID',
-                        color='Safety Class',
-                        hover_data=['Hard Acceleration', 'Hard Braking', 'Hard Cornering', 'Overspeed', 'Driver Rank'])
+            fig = px.bar(
+                driverScores,
+                y='Driver Score',
+                x='Driver ID',
+                color='Safety Class',
+                hover_data=[
+                    'Hard Acceleration', 'Hard Braking',
+                    'Hard Cornering', 'Overspeed', 'Driver Rank']
+                )
             fig.update_traces(marker_line_width=1, marker_line_color="black")
             fig.update_layout(
                 barmode='stack',
