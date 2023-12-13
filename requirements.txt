@@ -9,6 +9,7 @@ kaleido
 more-itertools==8.10.0
 pandas
 pip
+pylint
 scikit-learn
 streamlit-aggrid
 streamlit-option-menu
