@@ -279,7 +279,8 @@ elif choose == 'App':
                      """)
             st.write(
                 updated_data_.drop(
-                    ['Company ID', 'Company Name', 'Email', 'positionid', 'timestamp', 'course'],
+                    ['Company ID', 'Company Name', 'Email',
+                     'positionid', 'timestamp', 'course', 'accuracy'],
                     axis=1).head())
 
             # st.download_button(
