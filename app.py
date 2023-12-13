@@ -137,16 +137,6 @@ elif choose == 'App':
                 table2 = st.secrets.db_credentials.table2
                 table3 = st.secrets.db_credentials.table3
                 table4 = st.secrets.db_credentials.table4
-            else:
-                # Use environment variables
-                host = os.getenv('host')
-                user = os.getenv('user')
-                password = os.getenv('password')
-                db = os.getenv('database')
-                table1 = os.getenv('table1')
-                table2 = os.getenv('table2')
-                table3 = os.getenv('table3')
-                table4 = os.getenv('table4')
 
             engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{db}')
 
