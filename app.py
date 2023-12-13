@@ -250,8 +250,12 @@ elif choose == 'App':
 
                 updated_data_ = updated_data
 
-                updated_data_.to_csv('./csv files/data.csv', index=False,
-                                    header=True, encoding='utf-8')
+                updated_data_.drop(
+                    ['Company ID', 'Company Name', 'Email', 'positionid',
+                     'timestamp', 'course'],
+                    axis=1).head().to_csv(
+                        './csv files/data.csv', index=False,
+                        header=True, encoding='utf-8')
                 data.to_csv('./csv files/main_data.csv', index=False,
                             header=True, encoding='utf-8')
 
@@ -264,14 +268,14 @@ elif choose == 'App':
             SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
             @st.cache_data
-            def convert_df(updated_data_):
+            def convert_df(updated_data):
                 """
                  # IMPORTANT: Cache the conversion to prevent computation on
                  # every rerun
                 """
                 return updated_data_.to_csv().encode('utf-8')
 
-            csv = convert_df(updated_data_)
+            #csv = convert_df(updated_data)
 
             st.write("""
                      ## A  preview of the fetched data
