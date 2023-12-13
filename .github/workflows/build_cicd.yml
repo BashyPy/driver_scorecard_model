@@ -9,11 +9,11 @@ on:
   schedule:
     - cron: "21 16 * * *"
   push:
-    branches: ["streamlit_version"]
+    branches: ["scorecard_heroku"]
     # Publish semver tags as releases.
     tags: ["v*.*.*"]
   pull_request:
-    branches: ["streamlit_version"]
+    branches: ["scorecard_heroku"]
 
 env:
   # Use docker.io for Docker Hub if empty
