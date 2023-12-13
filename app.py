@@ -126,14 +126,14 @@ elif choose == 'App':
         get_data = st.button('Get data')
 
         if get_data:
-                host = st.secrets.db_credentials.host
-                user = st.secrets.db_credentials.user
-                password = st.secrets.db_credentials.password
-                db = st.secrets.db_credentials.database
-                table1 = st.secrets.db_credentials.table1
-                table2 = st.secrets.db_credentials.table2
-                table3 = st.secrets.db_credentials.table3
-                table4 = st.secrets.db_credentials.table4
+            host = st.secrets.db_credentials.host
+            user = st.secrets.db_credentials.user
+            password = st.secrets.db_credentials.password
+            db = st.secrets.db_credentials.database
+            table1 = st.secrets.db_credentials.table1
+            table2 = st.secrets.db_credentials.table2
+            table3 = st.secrets.db_credentials.table3
+            table4 = st.secrets.db_credentials.table4
 
             engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{db}')
 
