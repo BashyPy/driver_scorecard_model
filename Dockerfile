@@ -14,12 +14,12 @@ WORKDIR /app
 RUN pip install --upgrade pip && \
     pip install -r requirements.txt
 
-EXPOSE 8080
+EXPOSE 8501
 
 COPY . /app
 
-ENTRYPOINT [ "python" ]
+#ENTRYPOINT [ "python" ]
 
-HEALTHCHECK --interval=5s --timeout=3s CMD curl -f http://localhost:8080 || nc -zv localhost 8080 || exit 1
+HEALTHCHECK --interval=5s --timeout=3s CMD curl -f http://localhost:8501 || nc -zv localhost 8501 || exit 1
 
-CMD ["main.py"]
+CMD ["streamlit", "run", "main.py"]
