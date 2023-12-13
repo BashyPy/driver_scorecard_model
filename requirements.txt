@@ -11,6 +11,7 @@ pandas
 pip
 pylint
 scikit-learn
+sqlalchemy
 streamlit-aggrid
 streamlit-option-menu
 scipy
