@@ -254,7 +254,7 @@ elif choose == 'App':
                             header=True, encoding='utf-8')
 
             except Exception as e:
-                st.warn(f"Error: {e}")
+                st.error(f"Error: {e}")
 
             # Create declarative base meta instance
             Base = declarative_base()
@@ -635,7 +635,7 @@ elif choose == 'App':
                 features = features.fillna(0)
                 # st.write(features)
             except Exception as e:
-                st.write(f"{e}")
+                st.error(f"{e}")
             features = features.rename(
                 columns={
                     'F_hardAcceleration': "Hard Acceleration",
