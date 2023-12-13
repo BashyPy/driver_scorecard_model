@@ -22,6 +22,10 @@ import scipy.stats as sc
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import rankdata
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 plt.rcParams["figure.figsize"] = (20, 5)
 
@@ -121,17 +125,28 @@ elif choose == 'App':
         get_data = st.button('Get data')
 
         if get_data:
-            host = st.secrets.db_credentials.host
-            user = st.secrets.db_credentials.user
-            password = st.secrets.db_credentials.password
-            db = st.secrets.db_credentials.database
-            table1 = st.secrets.db_credentials.table1
-            table2 = st.secrets.db_credentials.table2
-            table3 = st.secrets.db_credentials.table3
-            table4 = st.secrets.db_credentials.table4
+            if os.path.exists('.env') and os.path.exists('.streamlit/secrets.toml'):
+                # Use Streamlit secrets
+                host = st.secrets.db_credentials.host
+                user = st.secrets.db_credentials.user
+                password = st.secrets.db_credentials.password
+                db = st.secrets.db_credentials.database
+                table1 = st.secrets.db_credentials.table1
+                table2 = st.secrets.db_credentials.table2
+                table3 = st.secrets.db_credentials.table3
+                table4 = st.secrets.db_credentials.table4
+            else:
+                # Use environment variables
+                host = os.getenv('host')
+                user = os.getenv('username')
+                password = os.getenv('password')
+                db = os.getenv('database')
+                table1 = os.getenv('table1')
+                table2 = os.getenv('table2')
+                table3 = os.getenv('table3')
+                table4 = os.getenv('table4')
 
-            engine = create_engine(
-                f'mysql+pymysql://{user}:{password}@{host}/{db}')
+            engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{db}')
 
             try:
                 query = pd.read_sql_query(
@@ -814,7 +829,7 @@ elif choose == 'App':
                 fittedParams[col]['scale'] = scale
             # st.write('Fitted parameters:')
             # st.write(json.dumps(fittedParams, indent=2))
-            # Commulative distribution/density function
+            # Cumulative distribution/density function
             perFeatureScores = normalizedFeatures.apply(
                 calculate_score_for_series, args=(
                     fittedParams, False),
