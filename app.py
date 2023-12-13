@@ -39,6 +39,14 @@ sns.set(style="ticks", font_scale=1.1)
 
 warnings.filterwarnings("ignore")
 
+paths = ['csv files', 'HTML Charts', 'HTML Charts/Year',
+         'HTML Charts/Year and Month', 'HTML Charts/Year and Month and ID',
+         'HTML Charts/Year and Quarter', 'HTML Charts/Year and Quarter and ID']
+
+
+for path in paths:
+    if not os.path.exists(f'{path}'):
+        os.makedirs(f'{path}')
 
 with st.sidebar:
     choose = option_menu("Main Menu",
