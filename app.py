@@ -10,6 +10,7 @@ Last Update on Wed Dec 13 16:35 2023
 
 
 import warnings
+import pymysql
 import plotly.express as px
 from streamlit_option_menu import option_menu
 import streamlit as st
