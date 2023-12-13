@@ -794,40 +794,60 @@ elif choose == 'App':
                     return arg, loc, scale
 
             def calculate_score_for_series(x, fittedParams, verbose=False):
-                # st.write("Calculating scores for feature: " + x.name)
                 xPositive = x[x > 0]
                 probs = np.zeros(len(x))
-                if (len(xPositive) > 0):
+                if len(xPositive) > 0:
                     arg = fittedParams[x.name]['arg']
                     loc = fittedParams[x.name]['loc']
                     scale = fittedParams[x.name]['scale']
-                    probs[x > 0] = sc.expon.cdf(
-                        xPositive, loc=loc, scale=scale, *arg)
+                    probs[x > 0] = sc.expon.cdf(xPositive, loc=loc, scale=scale)
                     if verbose:
-                        probs_df = pd.DataFrame(
-                            {'Event value': x.values.tolist(),
-                                'Event probability': probs},
-                            index=True)
+                        probs_df = pd.DataFrame({'Event value': x.values.tolist(), 'Event probability': probs}, index=x.index)
                         probs_df = probs_df.sort_values(by='Event value')
-                        # st.write(probs_df)
+                        # Optionally display the probabilities dataframe
+                        # print(probs_df)
                 return probs
-            # Store each fitted distribution parameters for later use
-            fittedParams = {}
-            for col in features.columns:
-                arg, loc, scale = fit_distribution_params(features[col])
-                fittedParams[col] = {}
-                fittedParams[col]['arg'] = arg
-                fittedParams[col]['loc'] = loc
-                fittedParams[col]['scale'] = scale
-            # st.write('Fitted parameters:')
-            # st.write(json.dumps(fittedParams, indent=2))
-            # Cumulative distribution/density function
-            perFeatureScores = normalizedFeatures.apply(
-                calculate_score_for_series, args=(
-                    fittedParams, False),
-                axis=0).add_suffix("_CDF")
-            # perFeatureScores.head()
-            DIST = sc.expon
+            
+            # Assuming normalizedFeatures is defined and contains the data to be processed
+            # Assuming fittedParams is a dictionary containing the fitted distribution parameters for each feature
+            
+            perFeatureScores = normalizedFeatures.apply(calculate_score_for_series, args=(fittedParams, False), axis=0).add_suffix("_CDF")
+
+            #def calculate_score_for_series(x, fittedParams, verbose=False):
+            #    # st.write("Calculating scores for feature: " + x.name)
+            #    xPositive = x[x > 0]
+            #    probs = np.zeros(len(x))
+            #    if (len(xPositive) > 0):
+            #        arg = fittedParams[x.name]['arg']
+            #        loc = fittedParams[x.name]['loc']
+            #        scale = fittedParams[x.name]['scale']
+            #        probs[x > 0] = sc.expon.cdf(
+            #            xPositive, loc=loc, scale=scale, *arg)
+            #        if verbose:
+            #            probs_df = pd.DataFrame(
+            #                {'Event value': x.values.tolist(),
+            #                    'Event probability': probs},
+            #                index=True)
+            #            probs_df = probs_df.sort_values(by='Event value')
+            #            # st.write(probs_df)
+            #    return probs
+            ## Store each fitted distribution parameters for later use
+            #fittedParams = {}
+            #for col in features.columns:
+            #    arg, loc, scale = fit_distribution_params(features[col])
+            #    fittedParams[col] = {}
+            #    fittedParams[col]['arg'] = arg
+            #    fittedParams[col]['loc'] = loc
+            #    fittedParams[col]['scale'] = scale
+            ## st.write('Fitted parameters:')
+            ## st.write(json.dumps(fittedParams, indent=2))
+            ## Cumulative distribution/density function
+            #perFeatureScores = normalizedFeatures.apply(
+            #    calculate_score_for_series, args=(
+            #        fittedParams, False),
+            #    axis=0).add_suffix("_CDF")
+            ## perFeatureScores.head()
+            #DIST = sc.expon
 
             def create_pdf(dist, params, size=10000):
                 # Separate parts of parameters
