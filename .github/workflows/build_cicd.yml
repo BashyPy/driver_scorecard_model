@@ -9,11 +9,11 @@ on:
   schedule:
     - cron: "21 16 * * *"
   push:
-    branches: ["main"]
+    branches: ["streamlit_version"]
     # Publish semver tags as releases.
-    tags: ["latest"]
+    tags: ["v*.*.*"]
   pull_request:
-    branches: ["main"]
+    branches: ["streamlit_version"]
 
 env:
   # Use docker.io for Docker Hub if empty
