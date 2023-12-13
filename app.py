@@ -126,15 +126,14 @@ elif choose == 'App':
         get_data = st.button('Get data')
 
         if get_data:
-                # Use environment variables
-                host = os.getenv('host')
-                user = os.getenv('user')
-                password = os.getenv('password')
-                db = os.getenv('database')
-                table1 = os.getenv('table1')
-                table2 = os.getenv('table2')
-                table3 = os.getenv('table3')
-                table4 = os.getenv('table4')
+            host = os.getenv('host')
+            user = os.getenv('user')
+            password = os.getenv('password')
+            db = os.getenv('database')
+            table1 = os.getenv('table1')
+            table2 = os.getenv('table2')
+            table3 = os.getenv('table3')
+            table4 = os.getenv('table4')
 
             engine = create_engine(f'mysql+pymysql://{user}:{password}@{host}/{db}')
 
@@ -243,7 +242,7 @@ elif choose == 'App':
                 updated_data_.drop(
                     ['Company ID', 'Company Name', 'Email', 'positionid',
                      'timestamp', 'course'],
-                    axis=1).head().to_csv(
+                    axis=1).to_csv(
                         './csv files/data.csv', index=False,
                         header=True, encoding='utf-8')
                 data.to_csv('./csv files/main_data.csv', index=False,
