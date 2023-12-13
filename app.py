@@ -126,9 +126,6 @@ elif choose == 'App':
         get_data = st.button('Get data')
 
         if get_data:
-            secrets_toml_path = os.path.join('.streamlit', 'secrets.toml')
-            if os.path.isfile('.env') and os.path.isfile(secrets_toml_path):
-                # Use Streamlit secrets
                 host = st.secrets.db_credentials.host
                 user = st.secrets.db_credentials.user
                 password = st.secrets.db_credentials.password
