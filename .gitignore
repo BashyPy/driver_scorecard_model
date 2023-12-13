@@ -148,3 +148,4 @@ logs/
 *.pem
 blackbox.py
 hadolint
+.DS_Store
