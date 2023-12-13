@@ -249,8 +249,8 @@ elif choose == 'App':
 
                 updated_data_.drop(
                     ['Company ID', 'Company Name', 'Email', 'positionid',
-                     'timestamp', 'course'],
-                    axis=1).head().to_csv(
+                     'course', 'accuracy'],
+                    axis=1).to_csv(
                         './csv files/data.csv', index=False,
                         header=True, encoding='utf-8')
                 data.to_csv('./csv files/main_data.csv', index=False,
