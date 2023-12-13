@@ -10,10 +10,13 @@ more-itertools==8.10.0
 pandas
 pip
 pylint
+scipy
+seaborn
 scikit-learn
 sqlalchemy
 streamlit-aggrid
 streamlit-option-menu
 scipy
 numpy
+matplotlib
 setuptools>=65.5.1 # not directly required, pinned by Snyk to avoid a vulnerability
