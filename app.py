@@ -237,7 +237,7 @@ elif choose == 'App':
                     part_of_day)
 
                 def test():
-                    global updated_data
+                    global updated_data_
 
                     updated_data = data[
                         ['DriverID', 'Company ID', 'Company Name', 'Email',
@@ -247,10 +247,12 @@ elif choose == 'App':
                          'eventdayofyear', 'eventquarter', 'eventhour',
                          'eventpartofday', 'latitude', 'longitude', 'altitude',
                          'speed', 'course', 'accuracy', ]]
+                    
+                    updated_data_ = updated_data
 
                 test()
 
-                updated_data.drop(
+                updated_data_.drop(
                     ['Company ID', 'Company Name', 'Email', 'positionid',
                      'timestamp', 'course'],
                     axis=1).head().to_csv(
@@ -273,9 +275,9 @@ elif choose == 'App':
                  # IMPORTANT: Cache the conversion to prevent computation on
                  # every rerun
                 """
-                return updated_data.to_csv().encode('utf-8')
+                return updated_data_.to_csv().encode('utf-8')
             
-            csv = convert_df(updated_data)
+            csv = convert_df(updated_data_)
 
             st.write(f"""
                      ## A  preview of the fetched data
