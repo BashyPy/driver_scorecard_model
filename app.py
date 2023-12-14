@@ -257,7 +257,7 @@ elif choose == 'App':
             SessionLocal = sessionmaker(bind=engine, expire_on_commit=False)
 
             @st.cache_data
-            def convert_df(updated_data):
+            def convert_df(updated_data_):
                 """
                  # IMPORTANT: Cache the conversion to prevent computation on
                  # every rerun
@@ -269,7 +269,7 @@ elif choose == 'App':
             st.write(f"""
                      ## A  preview of the fetched data
                      """)
-            st.write(updated_data.drop(['Company ID', 'Company Name', 'Email', 'positionid', 'timestamp'], axis=1).head())
+            st.write(updated_data_.drop(['Company ID', 'Company Name', 'Email', 'positionid', 'timestamp'], axis=1).head())
 
             # st.download_button(
             #   label="Download data as CSV",
@@ -289,7 +289,7 @@ elif choose == 'App':
         #    index=0)
 
         # Add a text input field to allow users to enter a search term
-        updated_data = pd.read_csv('./csv files/data.csv')
+        #updated_data_ = pd.read_csv('./csv files/data.csv')
 
         # st.subheader('Enter a date range to obtain the score')
         # today = date.today()
@@ -311,36 +311,36 @@ elif choose == 'App':
             index=0)
         st.write('You selected: ', option)
         if option == 'January':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'February':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'March':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'April':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'May':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'June':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'July':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'August':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'September':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'October':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'November':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         elif option == 'December':
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
         else:
             st.write('Please select a valid month option')
-        day = updated_data[updated_data['eventmonth'] == option]
+        day = updated_data_[updated_data_['eventmonth'] == option]
         if len(day['timestamp']) < 600:
             st.write('Please select another month')
         else:
-            day = updated_data[updated_data['eventmonth'] == option]
+            day = updated_data_[updated_data_['eventmonth'] == option]
 
             # st.write(
             # 'A preview at the selected month', day.drop(
@@ -398,9 +398,9 @@ elif choose == 'App':
             # After removing non-behavioral events, we have: {} events.
             # This led to a reduction in the data size by: {:0.2f}%, leaving:
             # {:0.2f}% of the entire data size.\nCurrent number of events is:
-            # {}""".format(len(updated_data), newCount, (
-            # (len(updated_data) - newCount)/len(updated_data))*100, (100-(((
-            # len(updated_data) - newCount)/len(updated_data))*100)), newCount)
+            # {}""".format(len(updated_data_), newCount, (
+            # (len(updated_data_) - newCount)/len(updated_data_))*100, (100-(((
+            # len(updated_data_) - newCount)/len(updated_data_))*100)), newCount)
             # )
             # Specifying behavioral events
             behavioral_events = [event for event in day.event if event in [
