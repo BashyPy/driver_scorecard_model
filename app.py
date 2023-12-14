@@ -819,11 +819,13 @@ elif choose == 'App':
                         # Optionally display the probabilities dataframe
                         # print(probs_df)
                 return probs
-            
+
             # Assuming normalizedFeatures is defined and contains the data to be processed
             # Assuming fittedParams is a dictionary containing the fitted distribution parameters for each feature
-            
+
             perFeatureScores = normalizedFeatures.apply(calculate_score_for_series, args=(fittedParams, False), axis=0).add_suffix("_CDF")
+
+
             #def calculate_score_for_series(x, fittedParams, verbose=False):
             #    # st.write("Calculating scores for feature: " + x.name)
             #    xPositive = x[x > 0]
