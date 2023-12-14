@@ -1,3 +1,5 @@
+autopep8
+gunicorn
 plotly
 pymysql
 sqlalchemy
