@@ -10,6 +10,7 @@ import scipy.stats as st
 import seaborn as sns
 import starlette.responses as responses
 from dotenv import load_dotenv
+import pymysql
 from fastapi import Depends, FastAPI, HTTPException, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
@@ -80,6 +81,7 @@ metadata.bind = engine
 
 # Pass the metadata to the read_sql_query function
 try:
+    global query_
     query = pd.read_sql_query(
         f'''SELECT e.*,
         p.latitude,
@@ -106,14 +108,15 @@ try:
         parse_dates=None,   # Specify date columns to parse
         chunksize=None      # Specify chunksize for reading in chunks
     )
+    query_ = query
 
-except Exception as e:
-    print(f"An error occurred: {e}")
-
-    data = pd.DataFrame(query, columns=['id', 'type', 'eventtime', 'deviceid', 'positionid',
-                                        'geofenceid', 'attributes', 'maintenanceid', 'latitude',
-                                        'longitude', 'altitude', 'speed', 'course', 'accuracy',
-                                        'network', 'Company ID', 'Company Name', 'Email'])
+    data = pd.DataFrame(query_,
+                        columns=['id', 'type', 'eventtime', 'deviceid',
+                                 'positionid', 'geofenceid', 'attributes',
+                                 'maintenanceid', 'latitude', 'longitude',
+                                 'altitude', 'speed', 'course', 'accuracy',
+                                 'network', 'Company ID', 'Company Name',
+                                 'Email'])
 
     data['timestamp'] = pd.to_datetime(data['eventtime'])
     data['eventdate'] = data['timestamp'].dt.date
@@ -162,25 +165,29 @@ except Exception as e:
     def test():
         global updated_data_
 
-        updated_data = data[['DriverID', 'Company ID', 'Company Name', 'Email', 'positionid',
-                            'timestamp', 'event', 'eventdate', 'eventtime', 'eventday',
-                             'eventyear', 'eventmonth', 'eventweek', 'eventdayofweek', 'eventdayofmonth',
-                             'eventdayofyear', 'eventquarter', 'eventhour', 'eventpartofday', 'latitude',
-                             'longitude', 'altitude', 'speed', 'course', 'accuracy', ]]
-        
+        updated_data = data[
+            ['DriverID', 'Company ID', 'Company Name', 'Email', 'positionid',
+             'timestamp', 'event', 'eventdate', 'eventtime', 'eventday',
+             'eventyear', 'eventmonth', 'eventweek', 'eventdayofweek',
+             'eventdayofmonth', 'eventdayofyear', 'eventquarter', 'eventhour',
+             'eventpartofday', 'latitude', 'longitude', 'altitude', 'speed',
+             'course', 'accuracy', ]]
+
         updated_data_ = updated_data
 
     test()
 
-    updated_data_.to_csv('./csv files/data.csv', index=False,
-                        header=True, encoding='utf-8')
-    data.to_csv('./csv files/main_data.csv', index=False,
-                header=True, encoding='utf-8')
+    updated_data_.to_csv(
+        './csv files/data.csv', index=False, header=True,
+        encoding='utf-8')
+    data.to_csv(
+        './csv files/main_data.csv', index=False, header=True,
+        encoding='utf-8')
 
     # result = updated_data_.to_json(orient="records")
     # parsed = json.loads(result)
     # json.dumps(parsed, indent=4)
-except Exception as e :
+except Exception as e:
     print(f"Error: {e}")
     logger.warning(f"Error: {e}")
     logger.error('Exception occurred', exc_info=True)
@@ -226,7 +233,8 @@ def authenticate_user(user_db, username: str, password: str):
     return user
 
 
-def create_access_token(data: dict, expires_delta: Union[timedelta, None] = None):
+def create_access_token(
+        data: dict, expires_delta: Union[timedelta, None] = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
@@ -259,7 +267,8 @@ async def get_current_user(token: str = Depends(oauth2_scheme)):
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
+async def get_current_active_user(
+        current_user: User = Depends(get_current_user)):
     if current_user.disabled:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
@@ -273,7 +282,8 @@ async def index(current_user: User = Depends(get_current_active_user)):
 
 
 @app.post("/token", response_model=Token)
-async def login_for_access_token(form_data: OAuth2PasswordRequestForm = Depends()):
+async def login_for_access_token(
+        form_data: OAuth2PasswordRequestForm = Depends()):
     user = authenticate_user(users_db, form_data.username, form_data.password)
     if not user:
         raise HTTPException(
@@ -327,7 +337,9 @@ async def get_data_per_month(month: str):
         parsed = json.loads(result)
         json.dumps(parsed, indent=4)
         return {"message": "Success", "status": 200, "data": result}
-    return {"message": "Not enough record for this month. Please select another month", "status": 401}
+    return {"message":
+            "Not enough record for this month. Please select another month",
+            "status": 401}
 
 
 @app.get("/getMonthlyDataPerDriver/{month}/{DriverID}")
@@ -342,7 +354,9 @@ async def get_data_per_month_per_driver(month: str, DriverID: int):
         parsed = json.loads(result)
         json.dumps(parsed, indent=4)
         return {"message": "Success", "status": 200, "data": result}
-    return {"message": "Not enough record for this month. Please select another month", "status": 401}
+    return {"message":
+            "Not enough record for this month. Please select another month",
+            "status": 401}
 
 
 @app.get('/getAnnualScore/{year}')
@@ -351,14 +365,17 @@ async def get_driver_score_per_year(year: int):
     day = data[data['eventyear'] == year]
 
     if day.shape[0] < 600:
-        return {"message": "Not Enough Records, Please Select Another Month", "status": 401}
+        return {"message":
+                "Not Enough Records, Please Select Another Month",
+                "status": 401}
     else:
         day = data[data['eventyear'] == year]
         # print('A preview at the selected month', day.head())
         # eventCount = len(day.event)
         # print(
-        # f'The number of events made in the selected month is: {eventCount} events'
-        # )
+        # f'
+        # The number of events made in the selected month is: {eventCount}
+        # events')
         # driverCount = day.DriverID.nunique()
         # print(
         # f"The number of drivers in this date range is: {driverCount}")
@@ -3020,7 +3037,7 @@ async def get_driver_score_per_driver_per_year_per_month(year: int, month: str, 
 @app.get('/getAnnualScorePerQuarter/{year}/{quarter}')
 async def get_driver_score_per_year_per_quarter(year: int, quarter: int):
     day = updated_data_[(updated_data_['eventyear'] == year)
-                       & (updated_data_['eventquarter'] == quarter)]
+                        & (updated_data_['eventquarter'] == quarter)]
 
     if day.shape[0] < 600:
         return {"message": "Not Enough Records, Please Select Another Quarter", "status": 401}
