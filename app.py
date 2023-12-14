@@ -696,8 +696,8 @@ elif choose == 'App':
                     vals = x.copy()
                     vals[outliers] = maxInRange
                     x = pd.Series(vals)
-                else:
-                    st.write("No outliers found")
+                #else:
+                #    st.write("No outliers found")
                 if normalize:
                     # Normalize to [0,1]
                     x = (x - np.min(x)) / (np.max(x)-np.min(x))
