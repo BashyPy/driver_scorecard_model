@@ -1,8 +1,25 @@
-version: '3.4'
+version: '3.9'
 
 services:
   fastapi:
+    container_name: driver_scorecard_container
     build: .
     ports:
       - 8000:8000
+    volumes:
+      - type: volume
+        source: driver_scorecard-vol
+        target: /app/
+  nodered:
+    container_name: nodered
+    image: nodered/node-red
+    ports:
+      - 1800:1800
+    volumes:
+      - type: volume
+        source: nodered-vol
+        target: /data
 
+volumes:
+  driver_scorecard-vol: {}
+  nodered-vol: {}
