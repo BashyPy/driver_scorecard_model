@@ -3,9 +3,10 @@ version: '3.9'
 services:
   fastapi:
     container_name: driver_scorecard_container
-    build: .
+    image: herbehordeun/driver_scorecard_model:main
+    #build: .
     ports:
-      - 8000:8000
+      - 8081:8080
     volumes:
       - type: volume
         source: driver_scorecard-vol
