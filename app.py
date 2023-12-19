@@ -130,9 +130,9 @@ try:
             "course",
             "accuracy",
             "network",
-            "Company ID",
-            "Company Name",
-            "Email",
+            #"Company ID",
+            #"Company Name",
+            #"Email",
         ],
     )
 
@@ -185,9 +185,9 @@ try:
         updated_data = data[
             [
                 "DriverID",
-                "Company ID",
-                "Company Name",
-                "Email",
+                #"Company ID",
+                #"Company Name",
+                #"Email",
                 "positionid",
                 "timestamp",
                 "event",
